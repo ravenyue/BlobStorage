@@ -158,8 +158,7 @@ namespace BlobStorage
             var stream = await GetOrNullAsync(bucketName, blobName, cancellationToken);
             if (stream == null)
             {
-                throw new Exception(
-                    $"Could not found the requested BLOB '{blobName}' in the bucket '{bucketName}'!");
+                throw new BlobNotFoundException(bucketName, blobName);
             }
 
             return stream;

@@ -7,29 +7,23 @@ using System.Threading.Tasks;
 
 namespace BlobStorage
 {
-    public class BlobAlreadyExistsException : Exception
+    public class BlobAlreadyExistsException : BlobStorageException
     {
-        public BlobAlreadyExistsException()
-        {
-
-        }
+        public BlobAlreadyExistsException() { }
 
         public BlobAlreadyExistsException(string message)
-            : base(message)
-        {
-
-        }
+            : base(message) { }
 
         public BlobAlreadyExistsException(string message, Exception innerException)
-            : base(message, innerException)
-        {
+            : base(message, innerException) { }
 
-        }
+        public BlobAlreadyExistsException(string message, string bucketName, string blobName)
+            : base(message, bucketName, blobName) { }
 
-        public BlobAlreadyExistsException(SerializationInfo serializationInfo, StreamingContext context)
-            : base(serializationInfo, context)
-        {
+        public BlobAlreadyExistsException(string message, string bucketName, string blobName, Exception innerException)
+            : base(message, bucketName, blobName, innerException) { }
 
-        }
+        protected BlobAlreadyExistsException(SerializationInfo serializationInfo, StreamingContext context)
+            : base(serializationInfo, context) { }
     }
 }

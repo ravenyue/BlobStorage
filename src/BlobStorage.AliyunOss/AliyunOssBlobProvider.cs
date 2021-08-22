@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using System;
 using System.IO;
 using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace BlobStorage.AliyunOss
@@ -28,7 +29,7 @@ namespace BlobStorage.AliyunOss
             return new OssClient(options.Endpoint, options.AccessKeyId, options.AccessKeySecret);
         }
 
-        public virtual Task SaveAsync(BlobProviderSaveArgs args)
+        public virtual async Task SaveAsync(BlobProviderSaveArgs args)
         {
             if (!args.OverrideExisting &&
                 BlobExists(OssClient, args.BucketName, args.BlobName))
@@ -36,16 +37,34 @@ namespace BlobStorage.AliyunOss
                 throw new BlobAlreadyExistsException($"Saving BLOB '{args.BlobName}' does already exists in the container '{args.BucketName}'! Set {nameof(args.OverrideExisting)} if it should be overwritten.");
             }
 
-            return OssClient.PutObjectAsync(
+            var result = await OssClient.PutObjectAsync(
                 args.BucketName,
                 args.BlobName,
                 args.BlobStream);
+
+            if (result.HttpStatusCode != HttpStatusCode.OK)
+            {
+                if (result.HttpStatusCode == HttpStatusCode.Forbidden)
+                {
+                    throw new BlobAccessDeniedException(args.BucketName, args.BlobName);
+                }
+                else
+                {
+                    throw new HttpRequestException(
+                        $"Response status code does not indicate success: {(int)result.HttpStatusCode} ({result.HttpStatusCode}).",
+                        null, result.HttpStatusCode);
+                }
+            }
         }
 
         public virtual Task<bool> DeleteAsync(BlobProviderDeleteArgs args)
         {
-            OssClient.DeleteObject(args.BucketName, args.BlobName);
-            return Task.FromResult(true);
+            if (!OssClient.DoesBucketExist(args.BucketName))
+            {
+                return Task.FromResult(false);
+            }
+            var result = OssClient.DeleteObject(args.BucketName, args.BlobName);
+            return Task.FromResult(result.DeleteMarker);
         }
 
         public virtual Task<bool> ExistsAsync(BlobProviderExistsArgs args)
@@ -60,24 +79,46 @@ namespace BlobStorage.AliyunOss
                 args.BucketName,
                 args.BlobName);
 
+            return HandleOssObjectError(ossObject);
+        }
+
+        protected virtual bool BlobExists(IOss ossClient, string bucketName, string blobName)
+        {
+            try
+            {
+                return OssClient.DoesObjectExist(bucketName, blobName);
+            }
+            catch (HttpRequestException ex)
+            {
+                if (ex.StatusCode == HttpStatusCode.Forbidden)
+                {
+                    throw new BlobAccessDeniedException(bucketName, blobName, ex);
+                }
+                throw;
+            }
+        }
+
+        private Stream HandleOssObjectError(OssObject ossObject)
+        {
             if (ossObject.HttpStatusCode != HttpStatusCode.OK)
             {
                 if (ossObject.HttpStatusCode == HttpStatusCode.NotFound)
                 {
                     return null;
                 }
+                else if (ossObject.HttpStatusCode == HttpStatusCode.Forbidden)
+                {
+                    throw new BlobAccessDeniedException(ossObject.BucketName, ossObject.Key);
+                }
                 else
                 {
-                    throw new ApplicationException("请求出错");
+                    throw new HttpRequestException(
+                        $"Response status code does not indicate success: {(int)ossObject.HttpStatusCode} ({ossObject.HttpStatusCode}).",
+                        null, ossObject.HttpStatusCode);
                 }
             }
 
             return ossObject.Content;
-        }
-
-        protected virtual bool BlobExists(IOss ossClient, string bucketName, string blobName)
-        {
-            return OssClient.DoesObjectExist(bucketName, blobName);
         }
     }
 }
