@@ -1,4 +1,5 @@
 using BlobStorage.AliyunOss;
+using BlobStorage.FileSystem;
 using BlobStorage.Samples.Containers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -37,15 +38,25 @@ namespace BlobStorage.Samples
 
             services.AddBlobStorage(options =>
             {
+                // AliyunOss provider
                 options.ConfigureContainer<AliyunOssContainer>(container =>
                 {
                     container.UseAliyunOss(Configuration.GetSection("Aliyun"));
                     //container.UseAliyunOss(aliyun =>
                     //{
-                    //    aliyun.AccessKeyId = "AccessKeyId";
-                    //    aliyun.AccessKeySecret = "AccessKeySecret";
-                    //    aliyun.Endpoint = "Endpoint";
+                    //    aliyun.AccessKeyId = "your aliyun access key id";
+                    //    aliyun.AccessKeySecret = "your aliyun access key secret";
+                    //    aliyun.Endpoint = "your oss endpoint";
                     //});
+                });
+
+                // FileSystem provider
+                options.ConfigureContainer<FileSystemContainer>(container =>
+                {
+                    container.UseFileSystem(fileSystem=> 
+                    {
+                        fileSystem.BasePath = @"E:\my-files";
+                    });
                 });
             });
         }

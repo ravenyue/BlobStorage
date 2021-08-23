@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\BlobStorage.AliyunOss\BlobStorage.AliyunOss.csproj" />
+    <ProjectReference Include="..\..\src\BlobStorage.FileSystem\BlobStorage.FileSystem.csproj" />
   </ItemGroup>
 
 </Project>

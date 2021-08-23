@@ -15,11 +15,11 @@ namespace BlobStorage.Samples.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class AliyunOssController : ControllerBase
+    public class FileSystemController : ControllerBase
     {
-        private readonly IBlobContainer<AliyunOssContainer> _blobContainer;
+        private readonly IBlobContainer<FileSystemContainer> _blobContainer;
 
-        public AliyunOssController(IBlobContainer<AliyunOssContainer> blobContainer)
+        public FileSystemController(IBlobContainer<FileSystemContainer> blobContainer)
         {
             _blobContainer = blobContainer;
         }
@@ -28,10 +28,10 @@ namespace BlobStorage.Samples.Controllers
         public async Task<IActionResult> Save([FromForm] BlobSaveDto dto)
         {
             await _blobContainer.SaveAsync(
-                 dto.BucketName,
-                 dto.BlobName,
-                 dto.Blob.OpenReadStream(),
-                 dto.OverrideExisting);
+                dto.BucketName,
+                dto.BlobName,
+                dto.Blob.OpenReadStream(),
+                dto.OverrideExisting);
 
             return Content("Saved");
         }

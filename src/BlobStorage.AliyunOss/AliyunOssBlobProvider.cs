@@ -34,7 +34,10 @@ namespace BlobStorage.AliyunOss
             if (!args.OverrideExisting &&
                 BlobExists(OssClient, args.BucketName, args.BlobName))
             {
-                throw new BlobAlreadyExistsException($"Saving BLOB '{args.BlobName}' does already exists in the container '{args.BucketName}'! Set {nameof(args.OverrideExisting)} if it should be overwritten.");
+                throw new BlobAlreadyExistsException(
+                    $"Saving BLOB '{args.BlobName}' does already exists in the container '{args.BucketName}'! Set {nameof(args.OverrideExisting)} if it should be overwritten.",
+                    args.BucketName,
+                    args.BlobName);
             }
 
             var result = await OssClient.PutObjectAsync(
