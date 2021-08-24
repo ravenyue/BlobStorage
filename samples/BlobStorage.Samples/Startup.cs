@@ -1,4 +1,5 @@
 using BlobStorage.AliyunOss;
+using BlobStorage.AmazonS3;
 using BlobStorage.FileSystem;
 using BlobStorage.Samples.Containers;
 using Microsoft.AspNetCore.Builder;
@@ -53,9 +54,20 @@ namespace BlobStorage.Samples
                 // FileSystem provider
                 options.ConfigureContainer<FileSystemContainer>(container =>
                 {
-                    container.UseFileSystem(fileSystem=> 
+                    container.UseFileSystem(fileSystem =>
                     {
                         fileSystem.BasePath = @"E:\my-files";
+                    });
+                });
+
+                // AmazonS3 provider
+                options.ConfigureContainer<AmazonS3Container>(container =>
+                {
+                    container.UseAmazonS3(amazon =>
+                    {
+                        amazon.AccessKeyId = "your Aws access key id";
+                        amazon.SecretAccessKey = "your Aws access key secret";
+                        amazon.Region = "the system name of the service";
                     });
                 });
             });
