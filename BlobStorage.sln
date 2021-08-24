@@ -15,7 +15,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlobStorage.Samples", "samp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlobStorage.FileSystem", "src\BlobStorage.FileSystem\BlobStorage.FileSystem.csproj", "{027DD68B-E3DD-4114-9934-093D92CA9339}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlobStorage.AmazonS3", "BlobStorage.AmazonS3\BlobStorage.AmazonS3.csproj", "{9C932E20-2497-4E04-9E26-088AA8797D31}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlobStorage.AmazonS3", "src\BlobStorage.AmazonS3\BlobStorage.AmazonS3.csproj", "{9C932E20-2497-4E04-9E26-088AA8797D31}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
