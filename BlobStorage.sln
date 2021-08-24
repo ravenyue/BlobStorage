@@ -15,7 +15,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlobStorage.Samples", "samp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlobStorage.FileSystem", "src\BlobStorage.FileSystem\BlobStorage.FileSystem.csproj", "{027DD68B-E3DD-4114-9934-093D92CA9339}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlobStorage.AmazonS3", "src\BlobStorage.AmazonS3\BlobStorage.AmazonS3.csproj", "{9C932E20-2497-4E04-9E26-088AA8797D31}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlobStorage.AmazonS3", "src\BlobStorage.AmazonS3\BlobStorage.AmazonS3.csproj", "{9C932E20-2497-4E04-9E26-088AA8797D31}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlobStorage.Minio", "src\BlobStorage.Minio\BlobStorage.Minio.csproj", "{99A12019-0D3D-4D42-8347-4A245AEDEB52}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -43,6 +45,10 @@ Global
 		{9C932E20-2497-4E04-9E26-088AA8797D31}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9C932E20-2497-4E04-9E26-088AA8797D31}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9C932E20-2497-4E04-9E26-088AA8797D31}.Release|Any CPU.Build.0 = Release|Any CPU
+		{99A12019-0D3D-4D42-8347-4A245AEDEB52}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{99A12019-0D3D-4D42-8347-4A245AEDEB52}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{99A12019-0D3D-4D42-8347-4A245AEDEB52}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{99A12019-0D3D-4D42-8347-4A245AEDEB52}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -53,6 +59,7 @@ Global
 		{3BC6B0CB-ABEF-47CB-B0C5-2BC0A7F41462} = {4AEB67DD-3D70-4591-8629-42129EF1D028}
 		{027DD68B-E3DD-4114-9934-093D92CA9339} = {346D5C72-8B59-4DBD-9B91-A1BCE5DE2ADE}
 		{9C932E20-2497-4E04-9E26-088AA8797D31} = {346D5C72-8B59-4DBD-9B91-A1BCE5DE2ADE}
+		{99A12019-0D3D-4D42-8347-4A245AEDEB52} = {346D5C72-8B59-4DBD-9B91-A1BCE5DE2ADE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {90544EEC-22E9-48F5-97EB-578C69F0E753}

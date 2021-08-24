@@ -1,6 +1,7 @@
 using BlobStorage.AliyunOss;
 using BlobStorage.AmazonS3;
 using BlobStorage.FileSystem;
+using BlobStorage.Minio;
 using BlobStorage.Samples.Containers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -69,6 +70,12 @@ namespace BlobStorage.Samples
                         amazon.SecretAccessKey = "your Aws access key secret";
                         amazon.Region = "the system name of the service";
                     });
+                });
+
+                // Minio provider
+                options.ConfigureContainer<MinioContainer>(container =>
+                {
+                    container.UseMinio(Configuration.GetSection("Minio"));
                 });
             });
         }
