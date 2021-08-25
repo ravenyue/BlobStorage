@@ -66,6 +66,10 @@ namespace BlobStorage.Minio
             }
             catch (MinioException ex)
             {
+                if (ex is BucketNotFoundException)
+                {
+                    throw new BlobBucketNotFoundException(args.BucketName, ex);
+                }
                 if (ex.IsAccessDeniedError())
                 {
                     throw new BlobAccessDeniedException(args.BucketName, args.BlobName, ex);
