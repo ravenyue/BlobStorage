@@ -1,4 +1,5 @@
 using Aliyun.OSS;
+using Aliyun.OSS.Common;
 using Microsoft.Extensions.Options;
 using System;
 using System.IO;
@@ -10,17 +11,17 @@ namespace BlobStorage.AliyunOss
 {
     public class AliyunOssBlobProvider : IBlobProvider
     {
-        protected AliyunOssBlobProviderOptions Options { get; }
+        protected AliyunOssOptions Options { get; }
         protected IOss OssClient { get; }
 
         public AliyunOssBlobProvider(
-            IOptions<AliyunOssBlobProviderOptions> options)
+            IOptions<AliyunOssOptions> options)
         {
             Options = options.Value;
             OssClient = GetOssClient(Options);
         }
 
-        protected virtual IOss GetOssClient(AliyunOssBlobProviderOptions options)
+        protected virtual IOss GetOssClient(AliyunOssOptions options)
         {
             Check.NotNullOrWhiteSpace(options.AccessKeyId, nameof(options.AccessKeyId));
             Check.NotNullOrWhiteSpace(options.AccessKeySecret, nameof(options.AccessKeySecret));
@@ -29,7 +30,7 @@ namespace BlobStorage.AliyunOss
             return new OssClient(options.Endpoint, options.AccessKeyId, options.AccessKeySecret);
         }
 
-        public virtual async Task SaveAsync(BlobProviderSaveArgs args)
+        public virtual Task SaveAsync(BlobProviderSaveArgs args)
         {
             if (!args.OverrideExisting &&
                 BlobExists(OssClient, args.BucketName, args.BlobName))
@@ -40,34 +41,52 @@ namespace BlobStorage.AliyunOss
                     args.BlobName);
             }
 
-            var result = await OssClient.PutObjectAsync(
-                args.BucketName,
-                args.BlobName,
-                args.BlobStream);
-
-            if (result.HttpStatusCode != HttpStatusCode.OK)
+            if (Options.CreateBucketIfNotExists)
             {
-                if (result.HttpStatusCode == HttpStatusCode.Forbidden)
-                {
-                    throw new BlobAccessDeniedException(args.BucketName, args.BlobName);
-                }
-                else
-                {
-                    throw new HttpRequestException(
-                        $"Response status code does not indicate success: {(int)result.HttpStatusCode} ({result.HttpStatusCode}).",
-                        null, result.HttpStatusCode);
-                }
+                CreateBucketIfNotExists(OssClient, args.BucketName);
             }
+
+            try
+            {
+                var result = OssClient.PutObject(
+                    args.BucketName,
+                    args.BlobName,
+                    args.BlobStream);
+            }
+            catch (OssException ex)
+            {
+                if (ex.IsBucketNotFoundError())
+                {
+                    throw new BlobBucketNotFoundException(args.BucketName, ex);
+                }
+                if (ex.IsAccessDeniedError())
+                {
+                    throw new BlobAccessDeniedException(args.BucketName, args.BlobName, ex);
+                }
+                throw;
+            }
+            return Task.CompletedTask;
         }
 
         public virtual Task<bool> DeleteAsync(BlobProviderDeleteArgs args)
         {
-            if (!OssClient.DoesBucketExist(args.BucketName))
+            try
             {
-                return Task.FromResult(false);
+                var result = OssClient.DeleteObject(args.BucketName, args.BlobName);
+                return Task.FromResult(result.DeleteMarker);
             }
-            var result = OssClient.DeleteObject(args.BucketName, args.BlobName);
-            return Task.FromResult(result.DeleteMarker);
+            catch (OssException ex)
+            {
+                if (ex.IsBucketNotFoundError())
+                {
+                    return Task.FromResult(false);
+                }
+                if (ex.IsAccessDeniedError())
+                {
+                    throw new BlobAccessDeniedException(args.BucketName, args.BlobName, ex);
+                }
+                throw;
+            }
         }
 
         public virtual Task<bool> ExistsAsync(BlobProviderExistsArgs args)
@@ -76,13 +95,28 @@ namespace BlobStorage.AliyunOss
             return Task.FromResult(result);
         }
 
-        public virtual async Task<Stream> GetOrNullAsync(BlobProviderGetArgs args)
+        public virtual Task<Stream> GetOrNullAsync(BlobProviderGetArgs args)
         {
-            var ossObject = await OssClient.GetObjectAsync(
-                args.BucketName,
-                args.BlobName);
+            try
+            {
+                var ossObject = OssClient.GetObject(
+                    args.BucketName,
+                    args.BlobName);
 
-            return HandleOssObjectError(ossObject);
+                return Task.FromResult(ossObject.Content);
+            }
+            catch (OssException ex)
+            {
+                if (ex.IsNotFoundError())
+                {
+                    return Task.FromResult<Stream>(null);
+                }
+                if (ex.IsAccessDeniedError())
+                {
+                    throw new BlobAccessDeniedException(args.BucketName, args.BlobName, ex);
+                }
+                throw;
+            }
         }
 
         protected virtual bool BlobExists(IOss ossClient, string bucketName, string blobName)
@@ -93,7 +127,7 @@ namespace BlobStorage.AliyunOss
             }
             catch (HttpRequestException ex)
             {
-                if (ex.StatusCode == HttpStatusCode.Forbidden)
+                if (ex.IsAccessDeniedError())
                 {
                     throw new BlobAccessDeniedException(bucketName, blobName, ex);
                 }
@@ -101,27 +135,23 @@ namespace BlobStorage.AliyunOss
             }
         }
 
-        private Stream HandleOssObjectError(OssObject ossObject)
+        protected virtual void CreateBucketIfNotExists(IOss client, string bucketName)
         {
-            if (ossObject.HttpStatusCode != HttpStatusCode.OK)
+            try
             {
-                if (ossObject.HttpStatusCode == HttpStatusCode.NotFound)
+                if (!client.DoesBucketExist(bucketName))
                 {
-                    return null;
-                }
-                else if (ossObject.HttpStatusCode == HttpStatusCode.Forbidden)
-                {
-                    throw new BlobAccessDeniedException(ossObject.BucketName, ossObject.Key);
-                }
-                else
-                {
-                    throw new HttpRequestException(
-                        $"Response status code does not indicate success: {(int)ossObject.HttpStatusCode} ({ossObject.HttpStatusCode}).",
-                        null, ossObject.HttpStatusCode);
+                    client.CreateBucket(bucketName);
                 }
             }
-
-            return ossObject.Content;
+            catch (OssException ex)
+            {
+                if (ex.IsAccessDeniedError())
+                {
+                    throw new BlobAccessDeniedException($"Access denied to bucket '{bucketName}'!", bucketName, "", ex);
+                }
+                throw;
+            }
         }
     }
 }

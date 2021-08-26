@@ -5,17 +5,17 @@ using System;
 
 namespace BlobStorage.AliyunOss
 {
-    public class AliyunOssBlobProviderOptionsExtension : IBlobStorageOptionsExtension
+    public class AliyunOssOptionsExtension : IBlobStorageOptionsExtension
     {
-        private readonly Action<AliyunOssBlobProviderOptions> _configureAction;
+        private readonly Action<AliyunOssOptions> _configureAction;
         private readonly IConfiguration _configuration;
 
-        public AliyunOssBlobProviderOptionsExtension(Action<AliyunOssBlobProviderOptions> configureAction)
+        public AliyunOssOptionsExtension(Action<AliyunOssOptions> configureAction)
         {
             _configureAction = configureAction;
         }
 
-        public AliyunOssBlobProviderOptionsExtension(IConfiguration configuration)
+        public AliyunOssOptionsExtension(IConfiguration configuration)
         {
             _configuration = configuration;
         }
@@ -30,7 +30,7 @@ namespace BlobStorage.AliyunOss
             }
             else
             {
-                services.Configure<AliyunOssBlobProviderOptions>(_configuration);
+                services.Configure<AliyunOssOptions>(_configuration);
             }
         }
     }
