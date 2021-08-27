@@ -6,9 +6,9 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace BlobStorage.AmazonS3
+namespace BlobStorage.Minio
 {
-    public class AmazonS3BlobNamingValidator : IBlobNamingValidator
+    public class MinioBlobNamingValidator : IBlobNamingValidator
     {
         public virtual bool ValidateBucketName(string bucketName)
         {

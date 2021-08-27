@@ -23,6 +23,7 @@ namespace BlobStorage.Minio
         public void AddServices(IServiceCollection services)
         {
             services.TryAddSingleton<MinioBlobProvider>();
+            services.TryAddSingleton<MinioBlobNamingValidator>();
 
             if (_configureAction != null)
             {

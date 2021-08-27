@@ -11,12 +11,13 @@ namespace BlobStorage.Minio
     {
         public static BlobContainerConfiguration UseMinio(
             this BlobContainerConfiguration containerConfiguration,
-            Action<MinioOptions> aliyunConfigureAction)
+            Action<MinioOptions> minioConfigureAction)
         {
-            Check.NotNull(aliyunConfigureAction, nameof(aliyunConfigureAction));
+            Check.NotNull(minioConfigureAction, nameof(minioConfigureAction));
 
-            containerConfiguration.ProviderType = typeof(MinioBlobProvider);
-            containerConfiguration.RegisterExtension(new MinioOptionsExtension(aliyunConfigureAction));
+            ConfigBlobContainerConfiguration(
+                containerConfiguration,
+                new MinioOptionsExtension(minioConfigureAction));
 
             return containerConfiguration;
         }
@@ -27,10 +28,20 @@ namespace BlobStorage.Minio
         {
             Check.NotNull(configuration, nameof(configuration));
 
-            containerConfiguration.ProviderType = typeof(MinioBlobProvider);
-            containerConfiguration.RegisterExtension(new MinioOptionsExtension(configuration));
+            ConfigBlobContainerConfiguration(
+                containerConfiguration,
+                new MinioOptionsExtension(configuration));
 
             return containerConfiguration;
+        }
+
+        private static void ConfigBlobContainerConfiguration(
+            BlobContainerConfiguration containerConfiguration,
+            IBlobStorageOptionsExtension extension)
+        {
+            containerConfiguration.ProviderType = typeof(MinioBlobProvider);
+            containerConfiguration.NamingValidatorType = typeof(MinioBlobNamingValidator);
+            containerConfiguration.RegisterExtension(extension);
         }
     }
 }
