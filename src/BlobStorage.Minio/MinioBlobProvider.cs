@@ -135,7 +135,7 @@ namespace BlobStorage.Minio
                     {
                         memoryStream = null;
                     }
-                });
+                }, cancellationToken: args.CancellationToken);
                 return memoryStream;
             }
             catch (MinioException ex)

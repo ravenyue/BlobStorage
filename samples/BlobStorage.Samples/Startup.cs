@@ -1,5 +1,6 @@
 using BlobStorage.AliyunOss;
 using BlobStorage.AmazonS3;
+using BlobStorage.AzureBlob;
 using BlobStorage.FileSystem;
 using BlobStorage.Minio;
 using BlobStorage.Samples.Containers;
@@ -30,7 +31,6 @@ namespace BlobStorage.Samples
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
@@ -44,12 +44,6 @@ namespace BlobStorage.Samples
                 options.ConfigureContainer<AliyunOssContainer>(container =>
                 {
                     container.UseAliyunOss(Configuration.GetSection("Aliyun"));
-                    //container.UseAliyunOss(aliyun =>
-                    //{
-                    //    aliyun.AccessKeyId = "your aliyun access key id";
-                    //    aliyun.AccessKeySecret = "your aliyun access key secret";
-                    //    aliyun.Endpoint = "your oss endpoint";
-                    //});
                 });
 
                 // FileSystem provider
@@ -64,18 +58,19 @@ namespace BlobStorage.Samples
                 // AmazonS3 provider
                 options.ConfigureContainer<AmazonS3Container>(container =>
                 {
-                    container.UseAmazonS3(amazon =>
-                    {
-                        amazon.AccessKeyId = "your Aws access key id";
-                        amazon.SecretAccessKey = "your Aws access key secret";
-                        amazon.Region = "us-west-2";
-                    });
+                    container.UseAmazonS3(Configuration.GetSection("Aws"));
                 });
 
                 // Minio provider
                 options.ConfigureContainer<MinioContainer>(container =>
                 {
                     container.UseMinio(Configuration.GetSection("Minio"));
+                });
+
+                // AzureBlob provider
+                options.ConfigureContainer<AzureBlobContainer>(container =>
+                {
+                    container.UseAzureBlob(Configuration.GetSection("Azure"));
                 });
             });
         }
