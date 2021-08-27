@@ -23,6 +23,7 @@ namespace BlobStorage.AliyunOss
         public void AddServices(IServiceCollection services)
         {
             services.TryAddSingleton<AliyunOssBlobProvider>();
+            services.TryAddSingleton<AliyunOssBlobNamingValidator>();
 
             if (_configureAction != null)
             {

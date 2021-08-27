@@ -9,7 +9,7 @@ namespace BlobStorage.FileSystem
 {
     public class DefaultBlobFilePathCalculator : IBlobFilePathCalculator
     {
-        public string Calculate(BlobProviderArgs args, FileSystemBlobProviderOptions options)
+        public string Calculate(BlobProviderArgs args, FileSystemOptions options)
         {
             var blobPath = options.BasePath;
 

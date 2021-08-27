@@ -68,7 +68,7 @@ namespace BlobStorage.Samples
                     {
                         amazon.AccessKeyId = "your Aws access key id";
                         amazon.SecretAccessKey = "your Aws access key secret";
-                        amazon.Region = "the system name of the service";
+                        amazon.Region = "us-west-2";
                     });
                 });
 

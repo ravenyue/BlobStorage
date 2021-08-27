@@ -19,9 +19,11 @@ namespace BlobStorage
         /// The provider to be used to store BLOBs of this container.
         /// </summary>
         public Type ProviderType { get; set; }
+        public Type NamingValidatorType { get; set; }
 
         public void RegisterExtension(IBlobStorageOptionsExtension extension)
         {
+           
             if (extension == null)
             {
                 throw new ArgumentNullException(nameof(extension));

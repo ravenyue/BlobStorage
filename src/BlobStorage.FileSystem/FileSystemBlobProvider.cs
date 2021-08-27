@@ -8,11 +8,11 @@ namespace BlobStorage.FileSystem
     public class FileSystemBlobProvider : IBlobProvider
     {
         protected IBlobFilePathCalculator FilePathCalculator { get; }
-        protected FileSystemBlobProviderOptions Options { get; }
+        protected FileSystemOptions Options { get; }
 
         public FileSystemBlobProvider(
             IBlobFilePathCalculator filePathCalculator,
-            IOptions<FileSystemBlobProviderOptions> options)
+            IOptions<FileSystemOptions> options)
         {
             FilePathCalculator = filePathCalculator;
             Options = options.Value;

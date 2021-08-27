@@ -94,14 +94,18 @@ namespace BlobStorage
 
         protected IBlobProvider Provider { get; }
 
+        protected IBlobNamingValidator BlobNamingValidator { get; }
+
         public BlobContainer(
             string containerName,
             BlobContainerConfiguration configuration,
-            IBlobProvider provider)
+            IBlobProvider provider,
+            IBlobNamingValidator blobNamingValidator)
         {
             ContainerName = containerName;
             Configuration = configuration;
             Provider = provider;
+            BlobNamingValidator = blobNamingValidator;
         }
 
         public virtual Task SaveAsync(
@@ -111,6 +115,14 @@ namespace BlobStorage
             bool overrideExisting = true,
             CancellationToken cancellationToken = default)
         {
+            Check.NotNullOrWhiteSpace(bucketName, nameof(bucketName));
+            Check.NotNullOrWhiteSpace(blobName, nameof(blobName));
+            Check.NotNull(stream, nameof(stream));
+
+            BlobNamingValidator.EnsureValidNameing(
+                bucketName, blobName,
+                Configuration.ProviderType.FullName);
+
             return Provider.SaveAsync(
                 new BlobProviderSaveArgs(
                     bucketName,
@@ -127,6 +139,13 @@ namespace BlobStorage
             string blobName,
             CancellationToken cancellationToken = default)
         {
+            Check.NotNullOrWhiteSpace(bucketName, nameof(bucketName));
+            Check.NotNullOrWhiteSpace(blobName, nameof(blobName));
+
+            BlobNamingValidator.EnsureValidNameing(
+                bucketName, blobName,
+                Configuration.ProviderType.FullName);
+
             return Provider.DeleteAsync(
                 new BlobProviderDeleteArgs(
                     bucketName,
@@ -141,6 +160,13 @@ namespace BlobStorage
             string blobName,
             CancellationToken cancellationToken = default)
         {
+            Check.NotNullOrWhiteSpace(bucketName, nameof(bucketName));
+            Check.NotNullOrWhiteSpace(blobName, nameof(blobName));
+
+            BlobNamingValidator.EnsureValidNameing(
+                bucketName, blobName,
+                Configuration.ProviderType.FullName);
+
             return Provider.ExistsAsync(
                 new BlobProviderExistsArgs(
                     bucketName,
@@ -155,6 +181,13 @@ namespace BlobStorage
             string blobName,
             CancellationToken cancellationToken = default)
         {
+            Check.NotNullOrWhiteSpace(bucketName, nameof(bucketName));
+            Check.NotNullOrWhiteSpace(blobName, nameof(blobName));
+
+            BlobNamingValidator.EnsureValidNameing(
+                bucketName, blobName,
+                Configuration.ProviderType.FullName);
+
             var stream = await GetOrNullAsync(bucketName, blobName, cancellationToken);
             if (stream == null)
             {
@@ -169,6 +202,13 @@ namespace BlobStorage
             string blobName,
             CancellationToken cancellationToken = default)
         {
+            Check.NotNullOrWhiteSpace(bucketName, nameof(bucketName));
+            Check.NotNullOrWhiteSpace(blobName, nameof(blobName));
+
+            BlobNamingValidator.EnsureValidNameing(
+                bucketName, blobName,
+                Configuration.ProviderType.FullName);
+
             return Provider.GetOrNullAsync(
                 new BlobProviderGetArgs(
                     bucketName,

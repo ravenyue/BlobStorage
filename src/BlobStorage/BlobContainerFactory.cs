@@ -11,23 +11,28 @@ namespace BlobStorage
     {
         protected BlobStorageOptions Options { get; }
         protected IBlobProviderSelector ProviderSelector { get; }
+        protected IBlobNamingValidatorSelector BlobNamingValidatorSelector { get; }
 
         public BlobContainerFactory(
             IOptions<BlobStorageOptions> options,
-            IBlobProviderSelector providerSelector)
+            IBlobProviderSelector providerSelector,
+            IBlobNamingValidatorSelector blobNamingValidatorSelector)
         {
             Options = options.Value;
             ProviderSelector = providerSelector;
+            BlobNamingValidatorSelector = blobNamingValidatorSelector;
         }
 
         public virtual IBlobContainer Create(string name)
         {
             var configuration = Options.Containers.GetConfiguration(name);
+            var validator = BlobNamingValidatorSelector.GetNamingValidator(configuration);
 
             return new BlobContainer(
                 name,
                 configuration,
-                ProviderSelector.Get(name));
+                ProviderSelector.Get(name),
+                validator);
         }
     }
 }

@@ -11,12 +11,13 @@ namespace BlobStorage.FileSystem
     {
         public static BlobContainerConfiguration UseFileSystem(
             this BlobContainerConfiguration containerConfiguration,
-            Action<FileSystemBlobProviderOptions> fileSystemConfigureAction)
+            Action<FileSystemOptions> fileSystemConfigureAction)
         {
             Check.NotNull(fileSystemConfigureAction, nameof(fileSystemConfigureAction));
 
-            containerConfiguration.ProviderType = typeof(FileSystemBlobProvider);
-            containerConfiguration.RegisterExtension(new FileSystemBlobProviderOptionsExtension(fileSystemConfigureAction));
+            ConfigBlobContainerConfiguration(
+                containerConfiguration,
+                new FileSystemOptionsExtension(fileSystemConfigureAction));
 
             return containerConfiguration;
         }
@@ -27,10 +28,20 @@ namespace BlobStorage.FileSystem
         {
             Check.NotNull(configuration, nameof(configuration));
 
-            containerConfiguration.ProviderType = typeof(FileSystemBlobProvider);
-            containerConfiguration.RegisterExtension(new FileSystemBlobProviderOptionsExtension(configuration));
+            ConfigBlobContainerConfiguration(
+                containerConfiguration,
+                new FileSystemOptionsExtension(configuration));
 
             return containerConfiguration;
+        }
+
+        private static void ConfigBlobContainerConfiguration(
+            BlobContainerConfiguration containerConfiguration,
+            IBlobStorageOptionsExtension extension)
+        {
+            containerConfiguration.ProviderType = typeof(FileSystemBlobProvider);
+            containerConfiguration.NamingValidatorType = typeof(FileSystemBlobNamingValidator);
+            containerConfiguration.RegisterExtension(extension);
         }
     }
 }

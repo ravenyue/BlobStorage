@@ -11,12 +11,13 @@ namespace BlobStorage.AmazonS3
     {
         public static BlobContainerConfiguration UseAmazonS3(
             this BlobContainerConfiguration containerConfiguration,
-            Action<AmazonS3Options> aliyunConfigureAction)
+            Action<AmazonS3Options> s3ConfigureAction)
         {
-            Check.NotNull(aliyunConfigureAction, nameof(aliyunConfigureAction));
+            Check.NotNull(s3ConfigureAction, nameof(s3ConfigureAction));
 
-            containerConfiguration.ProviderType = typeof(AmazonS3BlobProvider);
-            containerConfiguration.RegisterExtension(new AmazonS3OptionsExtension(aliyunConfigureAction));
+            ConfigBlobContainerConfiguration(
+                containerConfiguration,
+                new AmazonS3OptionsExtension(s3ConfigureAction));
 
             return containerConfiguration;
         }
@@ -27,10 +28,20 @@ namespace BlobStorage.AmazonS3
         {
             Check.NotNull(configuration, nameof(configuration));
 
-            containerConfiguration.ProviderType = typeof(AmazonS3BlobProvider);
-            containerConfiguration.RegisterExtension(new AmazonS3OptionsExtension(configuration));
+            ConfigBlobContainerConfiguration(
+                containerConfiguration,
+                new AmazonS3OptionsExtension(configuration));
 
             return containerConfiguration;
+        }
+
+        private static void ConfigBlobContainerConfiguration(
+            BlobContainerConfiguration containerConfiguration,
+            IBlobStorageOptionsExtension extension)
+        {
+            containerConfiguration.ProviderType = typeof(AmazonS3BlobProvider);
+            containerConfiguration.NamingValidatorType = typeof(AmazonS3BlobNamingValidator);
+            containerConfiguration.RegisterExtension(extension);
         }
     }
 }

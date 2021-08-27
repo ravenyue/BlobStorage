@@ -9,17 +9,17 @@ using System.Threading.Tasks;
 
 namespace BlobStorage.FileSystem
 {
-    public class FileSystemBlobProviderOptionsExtension : IBlobStorageOptionsExtension
+    public class FileSystemOptionsExtension : IBlobStorageOptionsExtension
     {
-        private readonly Action<FileSystemBlobProviderOptions> _configureAction;
+        private readonly Action<FileSystemOptions> _configureAction;
         private readonly IConfiguration _configuration;
 
-        public FileSystemBlobProviderOptionsExtension(Action<FileSystemBlobProviderOptions> configureAction)
+        public FileSystemOptionsExtension(Action<FileSystemOptions> configureAction)
         {
             _configureAction = configureAction;
         }
 
-        public FileSystemBlobProviderOptionsExtension(IConfiguration configuration)
+        public FileSystemOptionsExtension(IConfiguration configuration)
         {
             _configuration = configuration;
         }
@@ -28,6 +28,7 @@ namespace BlobStorage.FileSystem
         {
             services.TryAddSingleton<IBlobFilePathCalculator, DefaultBlobFilePathCalculator>();
             services.TryAddSingleton<FileSystemBlobProvider>();
+            services.TryAddSingleton<FileSystemBlobNamingValidator>();
 
             if (_configureAction != null)
             {
@@ -35,7 +36,7 @@ namespace BlobStorage.FileSystem
             }
             else
             {
-                services.Configure<FileSystemBlobProviderOptions>(_configuration);
+                services.Configure<FileSystemOptions>(_configuration);
             }
         }
     }

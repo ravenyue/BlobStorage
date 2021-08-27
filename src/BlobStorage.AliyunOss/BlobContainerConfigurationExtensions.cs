@@ -15,9 +15,9 @@ namespace BlobStorage.AliyunOss
         {
             Check.NotNull(aliyunConfigureAction, nameof(aliyunConfigureAction));
 
-            containerConfiguration.ProviderType = typeof(AliyunOssBlobProvider);
-            containerConfiguration.RegisterExtension(new AliyunOssOptionsExtension(aliyunConfigureAction));
-
+            ConfigBlobContainerConfiguration(
+                containerConfiguration,
+                new AliyunOssOptionsExtension(aliyunConfigureAction));
             return containerConfiguration;
         }
 
@@ -27,10 +27,20 @@ namespace BlobStorage.AliyunOss
         {
             Check.NotNull(configuration, nameof(configuration));
 
-            containerConfiguration.ProviderType = typeof(AliyunOssBlobProvider);
-            containerConfiguration.RegisterExtension(new AliyunOssOptionsExtension(configuration));
+            ConfigBlobContainerConfiguration(
+                containerConfiguration,
+                new AliyunOssOptionsExtension(configuration));
 
             return containerConfiguration;
+        }
+
+        private static void ConfigBlobContainerConfiguration(
+            BlobContainerConfiguration containerConfiguration,
+            IBlobStorageOptionsExtension extension)
+        {
+            containerConfiguration.ProviderType = typeof(AliyunOssBlobProvider);
+            containerConfiguration.NamingValidatorType = typeof(AliyunOssBlobNamingValidator);
+            containerConfiguration.RegisterExtension(extension);
         }
     }
 }

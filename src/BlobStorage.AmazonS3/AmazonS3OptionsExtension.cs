@@ -23,6 +23,7 @@ namespace BlobStorage.AmazonS3
         public void AddServices(IServiceCollection services)
         {
             services.TryAddSingleton<AmazonS3BlobProvider>();
+            services.TryAddSingleton<AmazonS3BlobNamingValidator>();
 
             if (_configureAction != null)
             {

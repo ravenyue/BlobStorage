@@ -13,9 +13,10 @@ namespace BlobStorage
                 throw new ArgumentNullException(nameof(setupAction));
             }
 
+            services.TryAddSingleton<IBlobNamingValidatorSelector, BlobNamingValidatorSelector>();
             services.TryAddSingleton<IBlobProviderSelector, DefaultBlobProviderSelector>();
             services.TryAddSingleton<IBlobContainerFactory, BlobContainerFactory>();
-            services.TryAddSingleton<IBlobContainer, BlobContainer<DefaultContainer>>();
+            services.TryAddSingleton<IBlobContainer, BlobContainer<DefaultContainer>>();           
             services.TryAddSingleton(typeof(IBlobContainer<>), typeof(BlobContainer<>));
 
             var options = new BlobStorageOptions();

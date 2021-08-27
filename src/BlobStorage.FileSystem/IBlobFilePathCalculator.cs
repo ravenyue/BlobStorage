@@ -8,6 +8,6 @@ namespace BlobStorage.FileSystem
 {
     public interface IBlobFilePathCalculator
     {
-        string Calculate(BlobProviderArgs args, FileSystemBlobProviderOptions options);
+        string Calculate(BlobProviderArgs args, FileSystemOptions options);
     }
 }

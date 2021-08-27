@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace BlobStorage.FileSystem
 {
-    public class FileSystemBlobProviderOptions
+    public class FileSystemOptions
     {
-        public FileSystemBlobProviderOptions()
+        public FileSystemOptions()
         {
             AppendBucketNameToBasePath = true;
         }
