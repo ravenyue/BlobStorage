@@ -25,7 +25,7 @@ namespace BlobStorage
 
         public virtual IBlobContainer Create(string name)
         {
-            var configuration = Options.Containers.GetConfiguration(name);
+            var configuration = Options.GetConfiguration(name);
             var validator = BlobNamingValidatorSelector.GetNamingValidator(configuration);
 
             return new BlobContainer(

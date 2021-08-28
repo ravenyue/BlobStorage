@@ -38,41 +38,50 @@ namespace BlobStorage.Samples
                 c.EnableAnnotations();
             });
 
-            services.AddBlobStorage(options =>
-            {
-                // AliyunOss provider
-                options.ConfigureContainer<AliyunOssContainer>(container =>
-                {
-                    container.UseAliyunOss(Configuration.GetSection("Aliyun"));
-                });
+            services.AddAuthentication();
 
-                // FileSystem provider
-                options.ConfigureContainer<FileSystemContainer>(container =>
-                {
-                    container.UseFileSystem(fileSystem =>
-                    {
-                        fileSystem.BasePath = @"E:\my-files";
-                    });
-                });
+            services.AddBlobStorage()
+                .AddAliyunOss<AliyunOssContainer>(Configuration.GetSection("Aliyun"))
+                .AddFileSystem<FileSystemContainer>(Configuration.GetSection("FileSystem"))
+                .AddAmazonS3<AmazonS3Container>(Configuration.GetSection("Aws"))
+                .AddMinio<MinioContainer>(Configuration.GetSection("Minio"))
+                .AddAzureBlob<AzureBlobContainer>(Configuration.GetSection("Azure"));
 
-                // AmazonS3 provider
-                options.ConfigureContainer<AmazonS3Container>(container =>
-                {
-                    container.UseAmazonS3(Configuration.GetSection("Aws"));
-                });
+            //services.AddBlobStorage(options =>
+            //{
+            //    // AliyunOss provider
+            //    options.ConfigureContainer<AliyunOssContainer>(container =>
+            //    {
+            //        container.UseAliyunOss(Configuration.GetSection("Aliyun"));
+            //    });
 
-                // Minio provider
-                options.ConfigureContainer<MinioContainer>(container =>
-                {
-                    container.UseMinio(Configuration.GetSection("Minio"));
-                });
+            //    // FileSystem provider
+            //    options.ConfigureContainer<FileSystemContainer>(container =>
+            //    {
+            //        container.UseFileSystem(fileSystem =>
+            //        {
+            //            fileSystem.BasePath = @"E:\my-files";
+            //        });
+            //    });
 
-                // AzureBlob provider
-                options.ConfigureContainer<AzureBlobContainer>(container =>
-                {
-                    container.UseAzureBlob(Configuration.GetSection("Azure"));
-                });
-            });
+            //    // AmazonS3 provider
+            //    options.ConfigureContainer<AmazonS3Container>(container =>
+            //    {
+            //        container.UseAmazonS3(Configuration.GetSection("Aws"));
+            //    });
+
+            //    // Minio provider
+            //    options.ConfigureContainer<MinioContainer>(container =>
+            //    {
+            //        container.UseMinio(Configuration.GetSection("Minio"));
+            //    });
+
+            //    // AzureBlob provider
+            //    options.ConfigureContainer<AzureBlobContainer>(container =>
+            //    {
+            //        container.UseAzureBlob(Configuration.GetSection("Azure"));
+            //    });
+            //});
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

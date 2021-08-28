@@ -1,47 +1,41 @@
 using Microsoft.Extensions.Configuration;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BlobStorage.FileSystem
 {
     public static class BlobContainerConfigurationExtensions
     {
         public static BlobContainerConfiguration UseFileSystem(
-            this BlobContainerConfiguration containerConfiguration,
-            Action<FileSystemOptions> fileSystemConfigureAction)
+            this BlobContainerConfiguration container,
+            Action<FileSystemOptions> configureAction)
         {
-            Check.NotNull(fileSystemConfigureAction, nameof(fileSystemConfigureAction));
+            Check.NotNull(configureAction, nameof(configureAction));
 
-            ConfigBlobContainerConfiguration(
-                containerConfiguration,
-                new FileSystemOptionsExtension(fileSystemConfigureAction));
+            container.UseFileSystemConfig();
+            container.RegisterExtension(new FileSystemOptionsExtension(configureAction));
 
-            return containerConfiguration;
+            return container;
         }
 
         public static BlobContainerConfiguration UseFileSystem(
-            this BlobContainerConfiguration containerConfiguration,
+            this BlobContainerConfiguration container,
             IConfiguration configuration)
         {
             Check.NotNull(configuration, nameof(configuration));
 
-            ConfigBlobContainerConfiguration(
-                containerConfiguration,
-                new FileSystemOptionsExtension(configuration));
+            container.UseFileSystemConfig();
+            container.RegisterExtension(new FileSystemOptionsExtension(configuration));
 
-            return containerConfiguration;
+            return container;
         }
 
-        private static void ConfigBlobContainerConfiguration(
-            BlobContainerConfiguration containerConfiguration,
-            IBlobStorageOptionsExtension extension)
+        internal static BlobContainerConfiguration UseFileSystemConfig(
+            this BlobContainerConfiguration container)
         {
-            containerConfiguration.ProviderType = typeof(FileSystemBlobProvider);
-            containerConfiguration.NamingValidatorType = typeof(FileSystemBlobNamingValidator);
-            containerConfiguration.RegisterExtension(extension);
+            container.ProviderType = typeof(FileSystemBlobProvider);
+            container.NamingValidatorType = typeof(FileSystemBlobNamingValidator);
+
+            return container;
         }
     }
 }

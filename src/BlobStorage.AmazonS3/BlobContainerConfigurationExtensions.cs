@@ -1,47 +1,41 @@
 using Microsoft.Extensions.Configuration;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BlobStorage.AmazonS3
 {
     public static class BlobContainerConfigurationExtensions
     {
         public static BlobContainerConfiguration UseAmazonS3(
-            this BlobContainerConfiguration containerConfiguration,
-            Action<AmazonS3Options> s3ConfigureAction)
+            this BlobContainerConfiguration container,
+            Action<AmazonS3Options> configureAction)
         {
-            Check.NotNull(s3ConfigureAction, nameof(s3ConfigureAction));
+            Check.NotNull(configureAction, nameof(configureAction));
 
-            ConfigBlobContainerConfiguration(
-                containerConfiguration,
-                new AmazonS3OptionsExtension(s3ConfigureAction));
+            container.UseAmazonS3Config();
+            container.RegisterExtension(new AmazonS3OptionsExtension(configureAction));
 
-            return containerConfiguration;
+            return container;
         }
 
         public static BlobContainerConfiguration UseAmazonS3(
-            this BlobContainerConfiguration containerConfiguration,
+            this BlobContainerConfiguration container,
             IConfiguration configuration)
         {
             Check.NotNull(configuration, nameof(configuration));
 
-            ConfigBlobContainerConfiguration(
-                containerConfiguration,
-                new AmazonS3OptionsExtension(configuration));
+            container.UseAmazonS3Config();
+            container.RegisterExtension(new AmazonS3OptionsExtension(configuration));
 
-            return containerConfiguration;
+            return container;
         }
 
-        private static void ConfigBlobContainerConfiguration(
-            BlobContainerConfiguration containerConfiguration,
-            IBlobStorageOptionsExtension extension)
+        internal static BlobContainerConfiguration UseAmazonS3Config(
+            this BlobContainerConfiguration container)
         {
-            containerConfiguration.ProviderType = typeof(AmazonS3BlobProvider);
-            containerConfiguration.NamingValidatorType = typeof(AmazonS3BlobNamingValidator);
-            containerConfiguration.RegisterExtension(extension);
+            container.ProviderType = typeof(AmazonS3BlobProvider);
+            container.NamingValidatorType = typeof(AmazonS3BlobNamingValidator);
+            
+            return container;
         }
     }
 }

@@ -1,46 +1,41 @@
 using Microsoft.Extensions.Configuration;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BlobStorage.AliyunOss
 {
     public static class BlobContainerConfigurationExtensions
     {
         public static BlobContainerConfiguration UseAliyunOss(
-            this BlobContainerConfiguration containerConfiguration,
-            Action<AliyunOssOptions> aliyunConfigureAction)
+            this BlobContainerConfiguration container,
+            Action<AliyunOssOptions> configureAction)
         {
-            Check.NotNull(aliyunConfigureAction, nameof(aliyunConfigureAction));
+            Check.NotNull(configureAction, nameof(configureAction));
 
-            ConfigBlobContainerConfiguration(
-                containerConfiguration,
-                new AliyunOssOptionsExtension(aliyunConfigureAction));
-            return containerConfiguration;
+            container.UseAliyunOssConfig();
+            container.RegisterExtension(new AliyunOssOptionsExtension(configureAction));
+
+            return container;
         }
 
         public static BlobContainerConfiguration UseAliyunOss(
-            this BlobContainerConfiguration containerConfiguration,
+            this BlobContainerConfiguration container,
             IConfiguration configuration)
         {
             Check.NotNull(configuration, nameof(configuration));
 
-            ConfigBlobContainerConfiguration(
-                containerConfiguration,
-                new AliyunOssOptionsExtension(configuration));
+            container.UseAliyunOssConfig();
+            container.RegisterExtension(new AliyunOssOptionsExtension(configuration));
 
-            return containerConfiguration;
+            return container;
         }
 
-        private static void ConfigBlobContainerConfiguration(
-            BlobContainerConfiguration containerConfiguration,
-            IBlobStorageOptionsExtension extension)
+        internal static BlobContainerConfiguration UseAliyunOssConfig(
+            this BlobContainerConfiguration container)
         {
-            containerConfiguration.ProviderType = typeof(AliyunOssBlobProvider);
-            containerConfiguration.NamingValidatorType = typeof(AliyunOssBlobNamingValidator);
-            containerConfiguration.RegisterExtension(extension);
+            container.ProviderType = typeof(AliyunOssBlobProvider);
+            container.NamingValidatorType = typeof(AliyunOssBlobNamingValidator);
+
+            return container;
         }
     }
 }

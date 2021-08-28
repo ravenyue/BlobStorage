@@ -6,38 +6,36 @@ namespace BlobStorage.AzureBlob
     public static class BlobContainerConfigurationExtensions
     {
         public static BlobContainerConfiguration UseAzureBlob(
-            this BlobContainerConfiguration containerConfiguration,
-            Action<AzureBlobOptions> azureConfigureAction)
+            this BlobContainerConfiguration container,
+            Action<AzureBlobOptions> configureAction)
         {
-            Check.NotNull(azureConfigureAction, nameof(azureConfigureAction));
+            Check.NotNull(configureAction, nameof(configureAction));
 
-            ConfigBlobContainerConfiguration(
-                containerConfiguration,
-                new AzureBlobOptionsExtension(azureConfigureAction));
+            container.UseAzureBlobConfig();
+            container.RegisterExtension(new AzureBlobOptionsExtension(configureAction));
 
-            return containerConfiguration;
+            return container;
         }
 
         public static BlobContainerConfiguration UseAzureBlob(
-            this BlobContainerConfiguration containerConfiguration,
+            this BlobContainerConfiguration container,
             IConfiguration configuration)
         {
             Check.NotNull(configuration, nameof(configuration));
 
-            ConfigBlobContainerConfiguration(
-                containerConfiguration,
-                new AzureBlobOptionsExtension(configuration));
+            container.UseAzureBlobConfig();
+            container.RegisterExtension(new AzureBlobOptionsExtension(configuration));
 
-            return containerConfiguration;
+            return container;
         }
 
-        private static void ConfigBlobContainerConfiguration(
-            BlobContainerConfiguration containerConfiguration,
-            IBlobStorageOptionsExtension extension)
+        internal static BlobContainerConfiguration UseAzureBlobConfig(
+            this BlobContainerConfiguration container)
         {
-            containerConfiguration.ProviderType = typeof(AzureBlobProvider);
-            containerConfiguration.NamingValidatorType = typeof(AzureBlobNamingValidator);
-            containerConfiguration.RegisterExtension(extension);
+            container.ProviderType = typeof(AzureBlobProvider);
+            container.NamingValidatorType = typeof(AzureBlobNamingValidator);
+
+            return container;
         }
     }
 }

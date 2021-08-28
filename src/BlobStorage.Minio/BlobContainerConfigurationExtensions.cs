@@ -1,47 +1,41 @@
 using Microsoft.Extensions.Configuration;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BlobStorage.Minio
 {
     public static class BlobContainerConfigurationExtensions
     {
         public static BlobContainerConfiguration UseMinio(
-            this BlobContainerConfiguration containerConfiguration,
-            Action<MinioOptions> minioConfigureAction)
+            this BlobContainerConfiguration container,
+            Action<MinioOptions> configureAction)
         {
-            Check.NotNull(minioConfigureAction, nameof(minioConfigureAction));
+            Check.NotNull(configureAction, nameof(configureAction));
 
-            ConfigBlobContainerConfiguration(
-                containerConfiguration,
-                new MinioOptionsExtension(minioConfigureAction));
+            container.UseMinioConfig();
+            container.RegisterExtension(new MinioOptionsExtension(configureAction));
 
-            return containerConfiguration;
+            return container;
         }
 
         public static BlobContainerConfiguration UseMinio(
-            this BlobContainerConfiguration containerConfiguration,
+            this BlobContainerConfiguration container,
             IConfiguration configuration)
         {
             Check.NotNull(configuration, nameof(configuration));
 
-            ConfigBlobContainerConfiguration(
-                containerConfiguration,
-                new MinioOptionsExtension(configuration));
+            container.UseMinioConfig();
+            container.RegisterExtension(new MinioOptionsExtension(configuration));
 
-            return containerConfiguration;
+            return container;
         }
 
-        private static void ConfigBlobContainerConfiguration(
-            BlobContainerConfiguration containerConfiguration,
-            IBlobStorageOptionsExtension extension)
+        internal static BlobContainerConfiguration UseMinioConfig(
+            this BlobContainerConfiguration container)
         {
-            containerConfiguration.ProviderType = typeof(MinioBlobProvider);
-            containerConfiguration.NamingValidatorType = typeof(MinioBlobNamingValidator);
-            containerConfiguration.RegisterExtension(extension);
+            container.ProviderType = typeof(MinioBlobProvider);
+            container.NamingValidatorType = typeof(MinioBlobNamingValidator);
+
+            return container;
         }
     }
 }

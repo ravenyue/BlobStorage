@@ -25,7 +25,7 @@ namespace BlobStorage
         {
             Check.NotNull(containerName, nameof(containerName));
 
-            var configuration = Options.Containers.GetConfiguration(containerName);
+            var configuration = Options.GetConfiguration(containerName);
 
             if (configuration.ProviderType == null)
             {
