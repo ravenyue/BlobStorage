@@ -19,7 +19,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlobStorage.AmazonS3", "src
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlobStorage.Minio", "src\BlobStorage.Minio\BlobStorage.Minio.csproj", "{99A12019-0D3D-4D42-8347-4A245AEDEB52}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlobStorage.AzureBlob", "src\BlobStorage.AzureBlob\BlobStorage.AzureBlob.csproj", "{9A051D2E-D83F-4097-8C54-AE151C7512D1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlobStorage.AzureBlob", "src\BlobStorage.AzureBlob\BlobStorage.AzureBlob.csproj", "{9A051D2E-D83F-4097-8C54-AE151C7512D1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{6086076A-27C8-402B-AC5F-C7A94C343753}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlobStorage.Tests", "tests\BlobStorage.Tests\BlobStorage.Tests.csproj", "{768DBC31-5BF4-4914-802A-55BADB22FD7B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -55,6 +59,10 @@ Global
 		{9A051D2E-D83F-4097-8C54-AE151C7512D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9A051D2E-D83F-4097-8C54-AE151C7512D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9A051D2E-D83F-4097-8C54-AE151C7512D1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{768DBC31-5BF4-4914-802A-55BADB22FD7B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{768DBC31-5BF4-4914-802A-55BADB22FD7B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{768DBC31-5BF4-4914-802A-55BADB22FD7B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{768DBC31-5BF4-4914-802A-55BADB22FD7B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -67,6 +75,7 @@ Global
 		{9C932E20-2497-4E04-9E26-088AA8797D31} = {346D5C72-8B59-4DBD-9B91-A1BCE5DE2ADE}
 		{99A12019-0D3D-4D42-8347-4A245AEDEB52} = {346D5C72-8B59-4DBD-9B91-A1BCE5DE2ADE}
 		{9A051D2E-D83F-4097-8C54-AE151C7512D1} = {346D5C72-8B59-4DBD-9B91-A1BCE5DE2ADE}
+		{768DBC31-5BF4-4914-802A-55BADB22FD7B} = {6086076A-27C8-402B-AC5F-C7A94C343753}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {90544EEC-22E9-48F5-97EB-578C69F0E753}
