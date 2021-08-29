@@ -14,11 +14,6 @@ namespace BlobStorage
             Name = name;
         }
 
-        public virtual string GetName(Type type)
-        {
-            return Name;
-        }
-
         public static string GetContainerName<T>()
         {
             return GetContainerName(typeof(T));
@@ -33,7 +28,7 @@ namespace BlobStorage
                 return type.FullName;
             }
 
-            return nameAttribute.GetName(type);
+            return nameAttribute.Name;
         }
     }
 }
