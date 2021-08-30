@@ -1,7 +1,8 @@
+using Azure;
 using Azure.Storage.Blobs;
 using Microsoft.Extensions.Options;
-using System;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace BlobStorage.AzureBlob
@@ -20,7 +21,7 @@ namespace BlobStorage.AzureBlob
             var (containerClient, blobClient) = GetBlobClient(args.BucketName, args.BlobName);
 
             if (!args.OverrideExisting &&
-                await BlobExistsAsync(containerClient, blobClient))
+                await BlobExistsAsync(blobClient, args.CancellationToken))
             {
                 throw new BlobAlreadyExistsException(
                     $"Saving BLOB '{args.BlobName}' does already exists in the container '{args.BucketName}'! Set {nameof(args.OverrideExisting)} if it should be overwritten.",
@@ -28,46 +29,100 @@ namespace BlobStorage.AzureBlob
                     args.BlobName);
             }
 
-            if (Options.CreateBucketIfNotExists)
+            try
             {
-                await containerClient.CreateIfNotExistsAsync();
+                if (Options.CreateBucketIfNotExists)
+                {
+                    await containerClient.CreateIfNotExistsAsync(
+                        cancellationToken: args.CancellationToken);
+                }
+                await blobClient.UploadAsync(args.BlobStream, true, args.CancellationToken);
             }
-
-            await blobClient.UploadAsync(args.BlobStream, true, args.CancellationToken);
+            catch (RequestFailedException ex)
+            {
+                if (ex.IsBucketNotFoundError())
+                {
+                    throw new BlobBucketNotFoundException(args.BucketName, ex);
+                }
+                if (ex.IsAccessDeniedError())
+                {
+                    throw new BlobAccessDeniedException(args.BucketName, args.BlobName, ex);
+                }
+                throw;
+            }
         }
 
         public async Task<bool> DeleteAsync(BlobProviderDeleteArgs args)
         {
             var (_, blobClient) = GetBlobClient(args.BucketName, args.BlobName);
-            return await blobClient.DeleteIfExistsAsync();
+            try
+            {
+                return await blobClient.DeleteIfExistsAsync(cancellationToken: args.CancellationToken);
+            }
+            catch (RequestFailedException ex)
+            {
+                if (ex.IsNotFoundError())
+                {
+                    return false;
+                }
+                if (ex.IsAccessDeniedError())
+                {
+                    throw new BlobAccessDeniedException(args.BucketName, args.BlobName, ex);
+                }
+                throw;
+            }
         }
 
         public Task<bool> ExistsAsync(BlobProviderExistsArgs args)
         {
-            var (containerClient, blobClient) = GetBlobClient(args.BucketName, args.BlobName);
+            var (_, blobClient) = GetBlobClient(args.BucketName, args.BlobName);
 
-            return BlobExistsAsync(containerClient, blobClient);
+            return BlobExistsAsync(blobClient, args.CancellationToken);
         }
 
         public async Task<Stream> GetOrNullAsync(BlobProviderGetArgs args)
         {
-            var (containerClient, blobClient) = GetBlobClient(args.BucketName, args.BlobName);
+            var (_, blobClient) = GetBlobClient(args.BucketName, args.BlobName);
 
-            if (!await BlobExistsAsync(containerClient, blobClient))
+            try
             {
-                return null;
+                var response = await blobClient.DownloadAsync(args.CancellationToken);
+                return response.Value.Content;
             }
-
-            var response = await blobClient.DownloadAsync(args.CancellationToken);
-            return response.Value.Content;
+            catch (RequestFailedException ex)
+            {
+                if (ex.IsNotFoundError())
+                {
+                    return null;
+                }
+                if (ex.IsAccessDeniedError())
+                {
+                    throw new BlobAccessDeniedException(args.BucketName, args.BlobName, ex);
+                }
+                throw;
+            }
         }
 
         protected virtual async Task<bool> BlobExistsAsync(
-            BlobContainerClient containerClient,
-            BlobClient blobClient)
+            BlobClient blobClient,
+            CancellationToken cancellationToken = default)
         {
-            return (await containerClient.ExistsAsync()).Value &&
-                   (await blobClient.ExistsAsync()).Value;
+            try
+            {
+                return (await blobClient.ExistsAsync(cancellationToken)).Value;
+            }
+            catch (RequestFailedException ex)
+            {
+                if (ex.IsNotFoundError())
+                {
+                    return false;
+                }
+                if (ex.IsAccessDeniedError())
+                {
+                    throw new BlobAccessDeniedException(blobClient.BlobContainerName, blobClient.Name, ex);
+                }
+                throw;
+            }
         }
 
         protected virtual (BlobContainerClient, BlobClient) GetBlobClient(string bucketName, string blobName)
