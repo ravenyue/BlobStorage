@@ -5,8 +5,7 @@ using Amazon.S3.Util;
 using Microsoft.Extensions.Options;
 using System;
 using System.IO;
-using System.Net;
-using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace BlobStorage.AmazonS3
@@ -32,8 +31,13 @@ namespace BlobStorage.AmazonS3
 
         public async Task SaveAsync(BlobProviderSaveArgs args)
         {
-            if (!args.OverrideExisting &&
-                await BlobExistsAsync(AmazonS3Client, args.BucketName, args.BlobName))
+            var exists = await BlobExistsAsync(
+                AmazonS3Client,
+                args.BucketName,
+                args.BlobName,
+                args.CancellationToken);
+
+            if (!args.OverrideExisting && exists)
             {
                 throw new BlobAlreadyExistsException(
                     $"Saving BLOB '{args.BlobName}' does already exists in the container '{args.BucketName}'! Set {nameof(args.OverrideExisting)} if it should be overwritten.",
@@ -41,42 +45,98 @@ namespace BlobStorage.AmazonS3
                     args.BlobName);
             }
 
-            await AmazonS3Client.PutObjectAsync(new PutObjectRequest
+            if (Options.CreateBucketIfNotExists)
             {
-                BucketName = args.BucketName,
-                Key = args.BlobName,
-                InputStream = args.BlobStream
-            }, args.CancellationToken);
+                await CreateBucketIfNotExists(AmazonS3Client, args.BucketName);
+            }
+
+            try
+            {
+                await AmazonS3Client.PutObjectAsync(new PutObjectRequest
+                {
+                    BucketName = args.BucketName,
+                    Key = args.BlobName,
+                    InputStream = args.BlobStream
+                }, args.CancellationToken);
+            }
+            catch (AmazonS3Exception ex)
+            {
+                if (ex.IsBucketNotFoundError())
+                {
+                    throw new BlobBucketNotFoundException(args.BucketName, ex);
+                }
+                if (ex.IsAccessDeniedError())
+                {
+                    throw new BlobAccessDeniedException(args.BucketName, args.BlobName, ex);
+                }
+                throw;
+            }
         }
 
         public async Task<bool> DeleteAsync(BlobProviderDeleteArgs args)
         {
-            if (!await BlobExistsAsync(AmazonS3Client, args.BucketName, args.BlobName))
+            if (!await BlobExistsAsync(
+                AmazonS3Client,
+                args.BucketName,
+                args.BlobName,
+                args.CancellationToken))
             {
                 return false;
             }
-            await AmazonS3Client.DeleteObjectAsync(new DeleteObjectRequest
+
+            try
             {
-                BucketName = args.BucketName,
-                Key = args.BlobName,
-            });
+                await AmazonS3Client.DeleteObjectAsync(new DeleteObjectRequest
+                {
+                    BucketName = args.BucketName,
+                    Key = args.BlobName,
+                }, args.CancellationToken);
+            }
+            catch (AmazonS3Exception ex)
+            {
+                if (ex.IsNotFoundError())
+                {
+                    return false;
+                }
+                if (ex.IsAccessDeniedError())
+                {
+                    throw new BlobAccessDeniedException(args.BucketName, args.BlobName, ex);
+                }
+                throw;
+            }
             return true;
         }
 
         public Task<bool> ExistsAsync(BlobProviderExistsArgs args)
         {
-            return BlobExistsAsync(AmazonS3Client, args.BucketName, args.BlobName);
+            return BlobExistsAsync(AmazonS3Client, args.BucketName, args.BlobName, args.CancellationToken);
         }
 
         public async Task<Stream> GetOrNullAsync(BlobProviderGetArgs args)
         {
-            var response = await AmazonS3Client.GetObjectAsync(new GetObjectRequest
+            try
             {
-                BucketName = args.BucketName,
-                Key = args.BlobName,
-            });
+                var response = await AmazonS3Client.GetObjectAsync(new GetObjectRequest
+                {
+                    BucketName = args.BucketName,
+                    Key = args.BlobName,
+                }, args.CancellationToken);
 
-            return HandleObjectResponseError(response);
+                return response.ResponseStream;
+            }
+            catch (AmazonS3Exception ex)
+            {
+                if (ex.IsNotFoundError())
+                {
+                    return null;
+                }
+                if (ex.IsAccessDeniedError())
+                {
+                    throw new BlobAccessDeniedException(args.BucketName, args.BlobName, ex);
+                }
+                throw;
+            }
+
         }
 
         public void Dispose()
@@ -84,46 +144,51 @@ namespace BlobStorage.AmazonS3
             AmazonS3Client?.Dispose();
         }
 
-        protected virtual async Task<bool> BlobExistsAsync(IAmazonS3 amazonS3Client, string bucketName, string blobName)
+        protected virtual async Task<bool> BlobExistsAsync(
+            IAmazonS3 amazonS3Client,
+            string bucketName,
+            string blobName,
+            CancellationToken cancellationToken = default)
         {
-            if (!await AmazonS3Util.DoesS3BucketExistV2Async(amazonS3Client, bucketName))
-            {
-                return false;
-            }
-
             try
             {
-                await amazonS3Client.GetObjectMetadataAsync(bucketName, blobName);
+                await amazonS3Client.GetObjectMetadataAsync(bucketName, blobName, cancellationToken);
             }
             catch (AmazonS3Exception ex)
             {
-                return false;
+                if (ex.IsNotFoundError())
+                {
+                    return false;
+                }
+                if (ex.IsAccessDeniedError())
+                {
+                    throw new BlobAccessDeniedException(bucketName, blobName, ex);
+                }
+                throw;
             }
-
             return true;
         }
 
-        private Stream HandleObjectResponseError(GetObjectResponse response)
+        protected virtual async Task CreateBucketIfNotExists(IAmazonS3 amazonS3Client, string bucketName)
         {
-            if (response.HttpStatusCode != HttpStatusCode.OK)
+            try
             {
-                if (response.HttpStatusCode == HttpStatusCode.NotFound)
+                if (!await AmazonS3Util.DoesS3BucketExistV2Async(amazonS3Client, bucketName))
                 {
-                    return null;
-                }
-                else if (response.HttpStatusCode == HttpStatusCode.Forbidden)
-                {
-                    throw new BlobAccessDeniedException(response.BucketName, response.Key);
-                }
-                else
-                {
-                    throw new HttpRequestException(
-                        $"Response status code does not indicate success: {(int)response.HttpStatusCode} ({response.HttpStatusCode}).",
-                        null, response.HttpStatusCode);
+                    await amazonS3Client.PutBucketAsync(new PutBucketRequest
+                    {
+                        BucketName = bucketName
+                    });
                 }
             }
-
-            return response.ResponseStream;
+            catch (AmazonS3Exception ex)
+            {
+                if (ex.IsAccessDeniedError())
+                {
+                    throw new BlobAccessDeniedException($"Access denied to bucket '{bucketName}'!", bucketName, "", ex);
+                }
+                throw;
+            }
         }
     }
 }
