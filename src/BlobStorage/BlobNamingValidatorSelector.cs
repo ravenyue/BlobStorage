@@ -1,23 +1,24 @@
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BlobStorage
 {
     public class BlobNamingValidatorSelector : IBlobNamingValidatorSelector
     {
+        public BlobStorageOptions Options { get; }
         protected IServiceProvider ServiceProvider { get; }
 
-        public BlobNamingValidatorSelector(IServiceProvider serviceProvider)
+        public BlobNamingValidatorSelector(
+            IOptions<BlobStorageOptions> options,
+            IServiceProvider serviceProvider)
         {
+            Options = options.Value;
             ServiceProvider = serviceProvider;
         }
 
-        public IBlobNamingValidator GetNamingValidator(BlobContainerConfiguration configuration)
+        public IBlobNamingValidator Get(string containerName)
         {
+            var configuration = Options.GetConfiguration(containerName);
             var validatorType = configuration.NamingValidatorType;
 
             if (configuration.NamingValidatorType == null)
@@ -25,16 +26,21 @@ namespace BlobStorage
                 return DefaultBlobNamingValidator.Instance;
             }
 
-            if (!validatorType.IsAssignableTo(typeof(IBlobNamingValidator)))
+            var validator = ServiceProvider.GetService(validatorType);
+
+            if (validator == null)
             {
-                throw new Exception(
-                    $"Type ({configuration.NamingValidatorType.AssemblyQualifiedName}) does not implement the ({typeof(IBlobNamingValidator).AssemblyQualifiedName}) interface"
-                );
+                throw new InvalidOperationException($"Type {validatorType.AssemblyQualifiedName} is not registered");
             }
 
-            var validator = ServiceProvider.GetRequiredService(validatorType);
+            if (validator is IBlobNamingValidator blobNamingValidator)
+            {
+                return blobNamingValidator;
+            }
 
-            return (IBlobNamingValidator)validator;
+            throw new InvalidOperationException(
+                $"Type ({validatorType.AssemblyQualifiedName}) does not implement the ({typeof(IBlobNamingValidator).AssemblyQualifiedName}) interface"
+            );
         }
     }
 }

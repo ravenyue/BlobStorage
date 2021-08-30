@@ -26,19 +26,18 @@ namespace BlobStorage
             Check.NotNull(containerName, nameof(containerName));
 
             var configuration = Options.GetConfiguration(containerName);
+            var providerType = configuration.ProviderType;
 
-            if (configuration.ProviderType == null)
+            if (providerType == null)
             {
-                throw new Exception($"Container {containerName} has no provider set");
+                throw new InvalidOperationException($"Container {containerName} has no provider set");
             }
 
             var provider = ServiceProvider.GetService(configuration.ProviderType);
 
             if (provider == null)
             {
-                throw new Exception(
-                    $"Could not find the BLOB Storage provider with the type ({configuration.ProviderType.AssemblyQualifiedName}) configured for the container {containerName} and no default provider was set."
-                );
+                throw new InvalidOperationException($"Type {providerType.AssemblyQualifiedName} is not registered");
             }
 
             if (provider is IBlobProvider blobProvider)
@@ -46,8 +45,8 @@ namespace BlobStorage
                 return blobProvider;
             }
 
-            throw new Exception(
-                $"Type ({configuration.ProviderType.AssemblyQualifiedName}) does not implement the ({typeof(IBlobProvider).AssemblyQualifiedName}) interface"
+            throw new InvalidOperationException(
+                $"Type ({providerType.AssemblyQualifiedName}) does not implement the ({typeof(IBlobProvider).AssemblyQualifiedName}) interface"
             );
         }
     }

@@ -26,12 +26,13 @@ namespace BlobStorage
         public virtual IBlobContainer Create(string name)
         {
             var configuration = Options.GetConfiguration(name);
-            var validator = BlobNamingValidatorSelector.GetNamingValidator(configuration);
+            var validator = BlobNamingValidatorSelector.Get(name);
+            var provider = ProviderSelector.Get(name);
 
             return new BlobContainer(
                 name,
                 configuration,
-                ProviderSelector.Get(name),
+                provider,
                 validator);
         }
     }

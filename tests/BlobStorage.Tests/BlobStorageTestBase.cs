@@ -20,30 +20,39 @@ namespace BlobStorage.Tests
             services.AddSingleton<FakeBlobProvider2>();
             services.AddSingleton<FakeBlobProvider4>();
 
+            services.AddSingleton<FakeBlobNamingValidator1>();
+            services.AddSingleton<FakeBlobNamingValidator2>();
+            services.AddSingleton<FakeBlobNamingValidator4>();
+
             services.AddBlobStorage(options =>
             {
                 options
                     .ConfigureDefaultContainer(container =>
                     {
                         container.ProviderType = typeof(FakeBlobProvider1);
+                        container.NamingValidatorType = typeof(FakeBlobNamingValidator1);
                     })
                     .ConfigureContainer<TestContainer1>(container =>
                     {
                         container.ProviderType = typeof(FakeBlobProvider1);
+                        container.NamingValidatorType = typeof(FakeBlobNamingValidator1);
                     })
                     .ConfigureContainer<TestContainer2>(container =>
                     {
                         container.ProviderType = typeof(FakeBlobProvider2);
+                        container.NamingValidatorType = typeof(FakeBlobNamingValidator2);
                     })
                     .ConfigureContainer<TestContainer3>(container =>
                     {
                         container.ProviderType = typeof(FakeBlobProvider3);
+                        container.NamingValidatorType = typeof(FakeBlobNamingValidator3);
                     })
                     .ConfigureContainer<TestContainer4>(container =>
                     {
                         container.ProviderType = typeof(FakeBlobProvider4);
+                        container.NamingValidatorType = typeof(FakeBlobNamingValidator4);
                     })
-                    .ConfigureContainer("NoProvider", container => { });
+                    .ConfigureContainer("none", container => { });
             });
 
             Provider = services.BuildServiceProvider();

@@ -43,10 +43,11 @@ namespace BlobStorage.Tests
         [Fact]
         public void Should_Throw_Exception_If_Provider_Not_Set()
         {
-            var containerName = "NoProvider";
+            var containerName = "none";
             Action act = () => _selector.Get(containerName);
 
-            act.Should().Throw<Exception>()
+            act.Should()
+                .Throw<InvalidOperationException>()
                 .WithMessage($"Container {containerName} has no provider set");
         }
 
@@ -55,8 +56,9 @@ namespace BlobStorage.Tests
         {
             Action act = () => _selector.Get<TestContainer3>();
 
-            act.Should().Throw<Exception>()
-                .WithMessage($"Could not find the BLOB Storage provider with the type ({typeof(FakeBlobProvider3).AssemblyQualifiedName}) configured for the container {TestContainer3.Name} and no default provider was set.");
+            act.Should()
+                .Throw<InvalidOperationException>()
+                .WithMessage($"Type {typeof(FakeBlobProvider3).AssemblyQualifiedName} is not registered");
         }
 
         [Fact]
@@ -64,7 +66,8 @@ namespace BlobStorage.Tests
         {
             Action act = () => _selector.Get<TestContainer4>();
 
-            act.Should().Throw<Exception>()
+            act.Should()
+                .Throw<InvalidOperationException>()
                 .WithMessage($"Type ({typeof(FakeBlobProvider4).AssemblyQualifiedName}) does not implement the ({typeof(IBlobProvider).AssemblyQualifiedName}) interface");
         }
     }

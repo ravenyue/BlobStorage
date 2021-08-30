@@ -8,6 +8,6 @@ namespace BlobStorage
 {
     public interface IBlobNamingValidatorSelector
     {
-        IBlobNamingValidator GetNamingValidator(BlobContainerConfiguration configuration);
+        IBlobNamingValidator Get(string containerName);
     }
 }
