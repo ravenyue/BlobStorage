@@ -22,18 +22,5 @@ namespace BlobStorage.Minio
             return (ex is ObjectNotFoundException) ||
                 (ex is BucketNotFoundException);
         }
-
-        //public static void WrapAccessDeniedException(MinioException ex, string bucketName, string blobName, string message = null)
-        //{
-        //    if ((ex is AccessDeniedException) ||
-        //        (ex.Response != null && ex.Response.Code == "AccessDenied") ||
-        //        (ex.ServerResponse != null && ex.ServerResponse.StatusCode == HttpStatusCode.Forbidden))
-        //    {
-        //        if (message == null)
-        //            throw new BlobAccessDeniedException(bucketName, blobName, ex);
-        //        else
-        //            throw new BlobAccessDeniedException(message, bucketName, blobName, ex);
-        //    }
-        //}
     }
 }
