@@ -27,11 +27,16 @@ namespace BlobStorage.Samples.Controllers
         [HttpPost("Blob")]
         public async Task<IActionResult> Save([FromForm] BlobSaveDto dto)
         {
+            var dict = new Dictionary<string, string>();
+            dict.Add("BucketName", dto.BucketName);
+            dict.Add("BlobName", dto.BlobName);
+
             await _blobContainer.SaveAsync(
                 dto.BucketName,
                 dto.BlobName,
                 dto.Blob.OpenReadStream(),
-                dto.OverrideExisting);
+                dto.OverrideExisting,
+                dict);
 
             return Content("Saved");
         }
@@ -46,6 +51,18 @@ namespace BlobStorage.Samples.Controllers
                 return NotFound();
             }
             return File(stream, MediaTypeNames.Application.Octet, Path.GetFileName(dto.BlobName));
+        }
+
+        [HttpGet("Blob/Metadata")]
+        public async Task<IActionResult> GetMetadata([FromQuery] BlobDto dto, CancellationToken cancellationToken)
+        {
+            var metadata = await _blobContainer.GetOrNullMetadataAsync(dto.BucketName, dto.BlobName, cancellationToken);
+
+            if (metadata == null)
+            {
+                return NotFound();
+            }
+            return Ok(metadata);
         }
 
         [HttpDelete("Blob")]

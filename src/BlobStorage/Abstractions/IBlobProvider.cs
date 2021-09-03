@@ -9,5 +9,7 @@ namespace BlobStorage
         Task<bool> DeleteAsync(BlobProviderDeleteArgs args);
         Task<bool> ExistsAsync(BlobProviderExistsArgs args);
         Task<Stream> GetOrNullAsync(BlobProviderGetArgs args);
+        Task<BlobMetadata> GetOrNullMetadataAsync(BlobProviderGetArgs args);
+        Task<BlobResponse> GetOrNullWithMetadataAsync(BlobProviderGetArgs args);
     }
 }

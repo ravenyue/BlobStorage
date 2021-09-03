@@ -56,6 +56,18 @@ namespace BlobStorage.Samples.Controllers
             return Content(result.ToString());
         }
 
+        [HttpGet("Blob/Metadata")]
+        public async Task<IActionResult> GetMetadata([FromQuery] BlobDto dto, CancellationToken cancellationToken)
+        {
+            var metadata = await _blobContainer.GetOrNullMetadataAsync(dto.BucketName, dto.BlobName, cancellationToken);
+
+            if (metadata == null)
+            {
+                return NotFound();
+            }
+            return Ok(metadata);
+        }
+
         [HttpGet("Blob/Exists")]
         public async Task<IActionResult> Exists([FromQuery] BlobDto dto, CancellationToken cancellationToken)
         {

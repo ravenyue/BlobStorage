@@ -48,6 +48,18 @@ namespace BlobStorage.Samples.Controllers
             return File(stream, MediaTypeNames.Application.Octet, Path.GetFileName(dto.BlobName));
         }
 
+        [HttpGet("Blob/Metadata")]
+        public async Task<IActionResult> GetMetadata([FromQuery] BlobDto dto, CancellationToken cancellationToken)
+        {
+            var metadata = await _blobContainer.GetOrNullMetadataAsync(dto.BucketName, dto.BlobName, cancellationToken);
+
+            if (metadata == null)
+            {
+                return NotFound();
+            }
+            return Ok(metadata);
+        }
+
         [HttpDelete("Blob")]
         public async Task<IActionResult> Delete([FromQuery] BlobDto dto, CancellationToken cancellationToken)
         {

@@ -64,5 +64,15 @@ namespace BlobStorage.FileSystem
 
             return Task.FromResult((Stream)File.OpenRead(filePath));
         }
+
+        public Task<BlobMetadata> GetOrNullMetadataAsync(BlobProviderGetArgs args)
+        {
+            throw new NotSupportedException();
+        }
+
+        public Task<BlobResponse> GetOrNullWithMetadataAsync(BlobProviderGetArgs args)
+        {
+            throw new NotSupportedException();
+        }
     }
 }

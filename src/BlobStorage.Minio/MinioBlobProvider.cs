@@ -62,6 +62,7 @@ namespace BlobStorage.Minio
                     args.BlobName,
                     args.BlobStream,
                     args.BlobStream.Length,
+                    metaData: args.Metadata,
                     cancellationToken: args.CancellationToken);
             }
             catch (MinioException ex)
@@ -150,6 +151,48 @@ namespace BlobStorage.Minio
                 }
                 throw;
             }
+        }
+
+        public virtual async Task<BlobMetadata> GetOrNullMetadataAsync(BlobProviderGetArgs args)
+        {
+            try
+            {
+                var objectStat = await MinioClient.StatObjectAsync(
+                    args.BucketName,
+                    args.BlobName,
+                    cancellationToken: args.CancellationToken);
+
+                return Mapper.MapBlobMetadata(objectStat);
+            }
+            catch (MinioException ex)
+            {
+                if (ex.IsNotFoundError())
+                {
+                    return null;
+                }
+                if (ex.IsAccessDeniedError())
+                {
+                    throw new BlobAccessDeniedException(args.BucketName, args.BlobName, ex);
+                }
+                throw;
+            }
+        }
+
+        public virtual async Task<BlobResponse> GetOrNullWithMetadataAsync(BlobProviderGetArgs args)
+        {
+            var metadata = await GetOrNullMetadataAsync(args);
+            if (metadata == null)
+            {
+                return null;
+            }
+
+            var stream = await GetOrNullAsync(args);
+            if (stream == null)
+            {
+                return null;
+            }
+
+            return new BlobResponse(stream, metadata);
         }
 
         protected virtual async Task<bool> BlobExistsAsync(MinioClient client, string bucketName, string blobName, CancellationToken cancellationToken = default)

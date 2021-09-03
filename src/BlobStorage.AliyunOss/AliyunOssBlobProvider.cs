@@ -48,10 +48,16 @@ namespace BlobStorage.AliyunOss
 
             try
             {
+                ObjectMetadata metadata = null;
+                if (args.Metadata != null)
+                {
+                    metadata = Mapper.MapObjectMetadata(args.Metadata);
+                }
                 var result = OssClient.PutObject(
                     args.BucketName,
                     args.BlobName,
-                    args.BlobStream);
+                    args.BlobStream,
+                    metadata);
             }
             catch (OssException ex)
             {
@@ -110,6 +116,54 @@ namespace BlobStorage.AliyunOss
                 if (ex.IsNotFoundError())
                 {
                     return Task.FromResult<Stream>(null);
+                }
+                if (ex.IsAccessDeniedError())
+                {
+                    throw new BlobAccessDeniedException(args.BucketName, args.BlobName, ex);
+                }
+                throw;
+            }
+        }
+
+        public Task<BlobMetadata> GetOrNullMetadataAsync(BlobProviderGetArgs args)
+        {
+            try
+            {
+                var objectMetadata = OssClient.GetObjectMetadata(
+                    args.BucketName,
+                    args.BlobName);
+
+                return Task.FromResult(Mapper.MapBlobMetadata(objectMetadata));
+            }
+            catch (OssException ex)
+            {
+                if (ex.IsNotFoundError())
+                {
+                    return Task.FromResult<BlobMetadata>(null);
+                }
+                if (ex.IsAccessDeniedError())
+                {
+                    throw new BlobAccessDeniedException(args.BucketName, args.BlobName, ex);
+                }
+                throw;
+            }
+        }
+
+        public Task<BlobResponse> GetOrNullWithMetadataAsync(BlobProviderGetArgs args)
+        {
+            try
+            {
+                var ossObject = OssClient.GetObject(
+                    args.BucketName,
+                    args.BlobName);
+
+                return Task.FromResult(Mapper.MapBlobResponse(ossObject));
+            }
+            catch (OssException ex)
+            {
+                if (ex.IsNotFoundError())
+                {
+                    return Task.FromResult<BlobResponse>(null);
                 }
                 if (ex.IsAccessDeniedError())
                 {

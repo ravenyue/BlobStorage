@@ -26,6 +26,7 @@ namespace BlobStorage
             string blobName,
             Stream stream,
             bool overrideExisting = true,
+            Dictionary<string, string> metadata = null,
             CancellationToken cancellationToken = default)
         {
             return _container.SaveAsync(
@@ -33,6 +34,7 @@ namespace BlobStorage
                 blobName,
                 stream,
                 overrideExisting,
+                metadata,
                 cancellationToken
             );
         }
@@ -84,6 +86,54 @@ namespace BlobStorage
                 cancellationToken
             );
         }
+
+        public Task<BlobMetadata> GetMetadataAsync(
+            string bucketName,
+            string blobName,
+            CancellationToken cancellationToken = default)
+        {
+            return _container.GetMetadataAsync(
+                bucketName,
+                blobName,
+                cancellationToken
+            );
+        }
+
+        public Task<BlobMetadata> GetOrNullMetadataAsync(
+            string bucketName,
+            string blobName,
+            CancellationToken cancellationToken = default)
+        {
+            return _container.GetOrNullMetadataAsync(
+                bucketName,
+                blobName,
+                cancellationToken
+            );
+        }
+
+        public Task<BlobResponse> GetWithMetadataAsync(
+            string bucketName,
+            string blobName,
+            CancellationToken cancellationToken = default)
+        {
+            return _container.GetWithMetadataAsync(
+                bucketName,
+                blobName,
+                cancellationToken
+            );
+        }
+
+        public Task<BlobResponse> GetOrNullWithMetadataAsync(
+            string bucketName,
+            string blobName,
+            CancellationToken cancellationToken = default)
+        {
+            return _container.GetOrNullWithMetadataAsync(
+                bucketName,
+                blobName,
+                cancellationToken
+            );
+        }
     }
 
     public class BlobContainer : IBlobContainer
@@ -113,6 +163,7 @@ namespace BlobStorage
             string blobName,
             Stream stream,
             bool overrideExisting = true,
+            Dictionary<string, string> metadata = null,
             CancellationToken cancellationToken = default)
         {
             Check.NotNullOrWhiteSpace(bucketName, nameof(bucketName));
@@ -129,6 +180,7 @@ namespace BlobStorage
                     blobName,
                     stream,
                     overrideExisting,
+                    metadata,
                     cancellationToken
                 )
             );
@@ -210,6 +262,92 @@ namespace BlobStorage
                 Configuration.ProviderType.FullName);
 
             return Provider.GetOrNullAsync(
+                new BlobProviderGetArgs(
+                    bucketName,
+                    blobName,
+                    cancellationToken
+                )
+            );
+        }
+
+        public async Task<BlobMetadata> GetMetadataAsync(string bucketName, string blobName, CancellationToken cancellationToken = default)
+        {
+            Check.NotNullOrWhiteSpace(bucketName, nameof(bucketName));
+            Check.NotNullOrWhiteSpace(blobName, nameof(blobName));
+
+            BlobNamingValidator.EnsureValidNameing(
+                bucketName, blobName,
+                Configuration.ProviderType.FullName);
+
+            var metadata = await Provider.GetOrNullMetadataAsync(
+                new BlobProviderGetArgs(
+                    bucketName,
+                    blobName,
+                    cancellationToken
+                )
+            );
+
+            if (metadata == null)
+            {
+                throw new BlobNotFoundException(bucketName, blobName);
+            }
+
+            return metadata;
+        }
+
+        public Task<BlobMetadata> GetOrNullMetadataAsync(string bucketName, string blobName, CancellationToken cancellationToken = default)
+        {
+            Check.NotNullOrWhiteSpace(bucketName, nameof(bucketName));
+            Check.NotNullOrWhiteSpace(blobName, nameof(blobName));
+
+            BlobNamingValidator.EnsureValidNameing(
+                bucketName, blobName,
+                Configuration.ProviderType.FullName);
+
+            return Provider.GetOrNullMetadataAsync(
+                new BlobProviderGetArgs(
+                    bucketName,
+                    blobName,
+                    cancellationToken
+                )
+            );
+        }
+
+        public async Task<BlobResponse> GetWithMetadataAsync(string bucketName, string blobName, CancellationToken cancellationToken = default)
+        {
+            Check.NotNullOrWhiteSpace(bucketName, nameof(bucketName));
+            Check.NotNullOrWhiteSpace(blobName, nameof(blobName));
+
+            BlobNamingValidator.EnsureValidNameing(
+                bucketName, blobName,
+                Configuration.ProviderType.FullName);
+
+            var response = await Provider.GetOrNullWithMetadataAsync(
+                new BlobProviderGetArgs(
+                    bucketName,
+                    blobName,
+                    cancellationToken
+                )
+            );
+
+            if (response == null)
+            {
+                throw new BlobNotFoundException(bucketName, blobName);
+            }
+
+            return response;
+        }
+
+        public Task<BlobResponse> GetOrNullWithMetadataAsync(string bucketName, string blobName, CancellationToken cancellationToken = default)
+        {
+            Check.NotNullOrWhiteSpace(bucketName, nameof(bucketName));
+            Check.NotNullOrWhiteSpace(blobName, nameof(blobName));
+
+            BlobNamingValidator.EnsureValidNameing(
+                bucketName, blobName,
+                Configuration.ProviderType.FullName);
+
+            return Provider.GetOrNullWithMetadataAsync(
                 new BlobProviderGetArgs(
                     bucketName,
                     blobName,

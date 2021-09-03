@@ -52,12 +52,21 @@ namespace BlobStorage.AmazonS3
 
             try
             {
-                await AmazonS3Client.PutObjectAsync(new PutObjectRequest
+                var request = new PutObjectRequest
                 {
                     BucketName = args.BucketName,
                     Key = args.BlobName,
-                    InputStream = args.BlobStream
-                }, args.CancellationToken);
+                    InputStream = args.BlobStream,
+                };
+
+                if (args.Metadata != null)
+                {
+                    foreach (var data in args.Metadata)
+                    {
+                        request.Metadata.Add(data.Key, data.Value);
+                    }
+                }
+                await AmazonS3Client.PutObjectAsync(request, args.CancellationToken);
             }
             catch (AmazonS3Exception ex)
             {
@@ -136,7 +145,58 @@ namespace BlobStorage.AmazonS3
                 }
                 throw;
             }
+        }
 
+        public async Task<BlobMetadata> GetOrNullMetadataAsync(BlobProviderGetArgs args)
+        {
+            try
+            {
+                var response = await AmazonS3Client
+                    .GetObjectMetadataAsync(
+                        args.BucketName,
+                        args.BlobName,
+                        args.CancellationToken);
+
+                return Mapper.MapBlobMetadata(response);
+            }
+            catch (AmazonS3Exception ex)
+            {
+                if (ex.IsNotFoundError())
+                {
+                    return null;
+                }
+                if (ex.IsAccessDeniedError())
+                {
+                    throw new BlobAccessDeniedException(args.BucketName, args.BlobName, ex);
+                }
+                throw;
+            }
+        }
+
+        public async Task<BlobResponse> GetOrNullWithMetadataAsync(BlobProviderGetArgs args)
+        {
+            try
+            {
+                var response = await AmazonS3Client.GetObjectAsync(new GetObjectRequest
+                {
+                    BucketName = args.BucketName,
+                    Key = args.BlobName,
+                }, args.CancellationToken);
+
+                return Mapper.MapBlobResponse(response);
+            }
+            catch (AmazonS3Exception ex)
+            {
+                if (ex.IsNotFoundError())
+                {
+                    return null;
+                }
+                if (ex.IsAccessDeniedError())
+                {
+                    throw new BlobAccessDeniedException(args.BucketName, args.BlobName, ex);
+                }
+                throw;
+            }
         }
 
         public void Dispose()
