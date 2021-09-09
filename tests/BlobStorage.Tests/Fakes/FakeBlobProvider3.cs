@@ -38,5 +38,15 @@ namespace BlobStorage.Tests.Fakes
         {
             throw new NotImplementedException();
         }
+
+        public Task<BlobMetadata> GetOrNullMetadataAsync(BlobProviderGetArgs args)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<BlobResponse> GetOrNullWithMetadataAsync(BlobProviderGetArgs args)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
