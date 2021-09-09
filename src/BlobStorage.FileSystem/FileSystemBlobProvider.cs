@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Options;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -67,12 +68,34 @@ namespace BlobStorage.FileSystem
 
         public Task<BlobMetadata> GetOrNullMetadataAsync(BlobProviderGetArgs args)
         {
-            throw new NotSupportedException();
+            var filePath = FilePathCalculator.Calculate(args, Options);
+            var fileInfo = new FileInfo(filePath);
+
+            if (!fileInfo.Exists)
+            {
+                return Task.FromResult<BlobMetadata>(null);
+            }
+
+            var metadata = new BlobMetadata(
+                fileInfo.Length,
+                string.Empty,
+                fileInfo.LastWriteTimeUtc,
+                null);
+
+            return Task.FromResult(metadata);
         }
 
-        public Task<BlobResponse> GetOrNullWithMetadataAsync(BlobProviderGetArgs args)
+        public async Task<BlobResponse> GetOrNullWithMetadataAsync(BlobProviderGetArgs args)
         {
-            throw new NotSupportedException();
+            var metadata = await GetOrNullMetadataAsync(args);
+            if (metadata == null)
+                return null;
+
+            var stream = await GetOrNullAsync(args);
+            if (stream == null)
+                return null;
+
+            return new BlobResponse(stream, metadata);
         }
     }
 }
