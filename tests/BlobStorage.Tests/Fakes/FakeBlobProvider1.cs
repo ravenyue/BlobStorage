@@ -9,42 +9,27 @@ namespace BlobStorage.Tests.Fakes
 {
     public class FakeBlobProvider1 : IBlobProvider
     {
-        public virtual Task SaveAsync(BlobProviderSaveArgs args)
+        public Task<bool> DeleteAsync(BlobProviderDeleteArgs args)
         {
             throw new NotImplementedException();
         }
 
-        public virtual Task<bool> DeleteAsync(BlobProviderDeleteArgs args)
+        public Task<bool> ExistsAsync(BlobProviderExistsArgs args)
         {
             throw new NotImplementedException();
         }
 
-        public virtual Task<bool> ExistsAsync(BlobProviderExistsArgs args)
+        public Task<BlobResponse> GetOrNullAsync(BlobProviderGetArgs args)
         {
             throw new NotImplementedException();
         }
 
-        public virtual Task<Stream> GetAsync(BlobProviderGetArgs args)
+        public Task SaveAsync(BlobProviderSaveArgs args)
         {
             throw new NotImplementedException();
         }
 
-        public virtual Task<Stream> GetOrNullAsync(BlobProviderGetArgs args)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task<Stream> IBlobProvider.GetOrNullAsync(BlobProviderGetArgs args)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<BlobMetadata> GetOrNullMetadataAsync(BlobProviderGetArgs args)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<BlobResponse> GetOrNullWithMetadataAsync(BlobProviderGetArgs args)
+        public Task<BlobStat> StatOrNullAsync(BlobProviderGetArgs args)
         {
             throw new NotImplementedException();
         }

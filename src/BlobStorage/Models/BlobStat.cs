@@ -6,23 +6,23 @@ using System.Threading.Tasks;
 
 namespace BlobStorage
 {
-    public class BlobMetadata
+    public class BlobStat
     {
-        public BlobMetadata(
+        public BlobStat(
             long size,
             string eTag,
             DateTimeOffset lastModified,
-            IDictionary<string, string> properties)
+            IDictionary<string, string> metadata)
         {
             Size = size;
             ETag = eTag;
             LastModified = lastModified;
-            Properties = properties;
+            Metadata = metadata;
         }
 
         public long Size { get; }
         public string ETag { get; }
         public DateTimeOffset LastModified { get; }
-        public IDictionary<string, string> Properties { get; }
+        public IDictionary<string, string> Metadata { get; }
     }
 }

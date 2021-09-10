@@ -16,18 +16,18 @@ namespace BlobStorage.AmazonS3
                 MapBlobMetadata(response));
         }
 
-        public static BlobMetadata MapBlobMetadata(GetObjectResponse response)
+        public static BlobStat MapBlobMetadata(GetObjectResponse response)
         {
-            return new BlobMetadata(
+            return new BlobStat(
                 response.ContentLength,
                 response.ETag,
                 response.LastModified,
                 MapDictionary(response.Metadata));
         }
 
-        public static BlobMetadata MapBlobMetadata(GetObjectMetadataResponse response)
+        public static BlobStat MapBlobMetadata(GetObjectMetadataResponse response)
         {
-            return new BlobMetadata(
+            return new BlobStat(
                 response.ContentLength,
                 response.ETag,
                 response.LastModified,

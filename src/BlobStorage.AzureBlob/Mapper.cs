@@ -16,18 +16,18 @@ namespace BlobStorage.AzureBlob
                 MapBlobMetadata(info.Details));
         }
 
-        public static BlobMetadata MapBlobMetadata(BlobProperties properties)
+        public static BlobStat MapBlobMetadata(BlobProperties properties)
         {
-            return new BlobMetadata(
+            return new BlobStat(
                 properties.ContentLength,
                 properties.ETag.ToString(),
                 properties.LastModified,
                 properties.Metadata);
         }
         
-        public static BlobMetadata MapBlobMetadata(BlobDownloadDetails details)
+        public static BlobStat MapBlobMetadata(BlobDownloadDetails details)
         {
-            return new BlobMetadata(
+            return new BlobStat(
                 details.ContentLength,
                 details.ETag.ToString(),
                 details.LastModified,

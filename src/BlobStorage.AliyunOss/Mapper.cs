@@ -16,9 +16,9 @@ namespace BlobStorage.AliyunOss
                 MapBlobMetadata(ossObject.Metadata));
         }
 
-        public static BlobMetadata MapBlobMetadata(ObjectMetadata objectMetadata)
+        public static BlobStat MapBlobMetadata(ObjectMetadata objectMetadata)
         {
-            return new BlobMetadata(
+            return new BlobStat(
                 objectMetadata.ContentLength,
                 objectMetadata.ETag,
                 objectMetadata.LastModified,

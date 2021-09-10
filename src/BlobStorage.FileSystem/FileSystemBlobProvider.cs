@@ -54,48 +54,36 @@ namespace BlobStorage.FileSystem
             return Task.FromResult(File.Exists(filePath));
         }
 
-        public Task<Stream> GetOrNullAsync(BlobProviderGetArgs args)
+        public async Task<BlobResponse> GetOrNullAsync(BlobProviderGetArgs args)
         {
             var filePath = FilePathCalculator.Calculate(args, Options);
 
-            if (!File.Exists(filePath))
-            {
-                return Task.FromResult<Stream>(null);
-            }
+            var metadata = await StatOrNullAsync(args);
+            if (metadata == null)
+                return null;
 
-            return Task.FromResult((Stream)File.OpenRead(filePath));
+            var stream = File.OpenRead(filePath);
+
+            return new BlobResponse(stream, metadata);
         }
 
-        public Task<BlobMetadata> GetOrNullMetadataAsync(BlobProviderGetArgs args)
+        public Task<BlobStat> StatOrNullAsync(BlobProviderGetArgs args)
         {
             var filePath = FilePathCalculator.Calculate(args, Options);
             var fileInfo = new FileInfo(filePath);
 
             if (!fileInfo.Exists)
             {
-                return Task.FromResult<BlobMetadata>(null);
+                return Task.FromResult<BlobStat>(null);
             }
 
-            var metadata = new BlobMetadata(
+            var metadata = new BlobStat(
                 fileInfo.Length,
                 string.Empty,
                 fileInfo.LastWriteTimeUtc,
                 null);
 
             return Task.FromResult(metadata);
-        }
-
-        public async Task<BlobResponse> GetOrNullWithMetadataAsync(BlobProviderGetArgs args)
-        {
-            var metadata = await GetOrNullMetadataAsync(args);
-            if (metadata == null)
-                return null;
-
-            var stream = await GetOrNullAsync(args);
-            if (stream == null)
-                return null;
-
-            return new BlobResponse(stream, metadata);
         }
     }
 }

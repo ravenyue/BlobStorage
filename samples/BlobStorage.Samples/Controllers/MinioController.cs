@@ -44,19 +44,19 @@ namespace BlobStorage.Samples.Controllers
         [HttpGet("Blob")]
         public async Task<IActionResult> GetBlob([FromQuery] BlobDto dto, CancellationToken cancellationToken)
         {
-            var stream = await _blobContainer.GetOrNullAsync(dto.BucketName, dto.BlobName, cancellationToken);
+            var response = await _blobContainer.GetOrNullAsync(dto.BucketName, dto.BlobName, cancellationToken);
 
-            if (stream == null)
+            if (response == null)
             {
                 return NotFound();
             }
-            return File(stream, MediaTypeNames.Application.Octet, Path.GetFileName(dto.BlobName));
+            return File(response.Content, MediaTypeNames.Application.Octet, Path.GetFileName(dto.BlobName));
         }
 
         [HttpGet("Blob/Metadata")]
         public async Task<IActionResult> GetMetadata([FromQuery] BlobDto dto, CancellationToken cancellationToken)
         {
-            var metadata = await _blobContainer.GetOrNullMetadataAsync(dto.BucketName, dto.BlobName, cancellationToken);
+            var metadata = await _blobContainer.StatOrNullAsync(dto.BucketName, dto.BlobName, cancellationToken);
 
             if (metadata == null)
             {

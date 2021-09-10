@@ -9,9 +9,9 @@ namespace BlobStorage.Minio
 {
     public class Mapper
     {
-        public static BlobMetadata MapBlobMetadata(ObjectStat stat)
+        public static BlobStat MapBlobMetadata(ObjectStat stat)
         {
-            return new BlobMetadata(
+            return new BlobStat(
                 stat.Size,
                 stat.ETag,
                 stat.LastModified,

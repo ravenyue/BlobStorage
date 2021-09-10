@@ -9,14 +9,14 @@ namespace BlobStorage
 {
     public class BlobResponse
     {
-        public BlobResponse(Stream content, BlobMetadata metadata)
+        public BlobResponse(Stream content, BlobStat stat)
         {
             Content = content;
-            Metadata = metadata;
+            Stat = stat;
         }
 
         public Stream Content { get; set; }
 
-        public BlobMetadata Metadata { get; set; }
+        public BlobStat Stat { get; set; }
     }
 }

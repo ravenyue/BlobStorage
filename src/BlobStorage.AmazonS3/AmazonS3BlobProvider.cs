@@ -121,59 +121,7 @@ namespace BlobStorage.AmazonS3
             return BlobExistsAsync(AmazonS3Client, args.BucketName, args.BlobName, args.CancellationToken);
         }
 
-        public async Task<Stream> GetOrNullAsync(BlobProviderGetArgs args)
-        {
-            try
-            {
-                var response = await AmazonS3Client.GetObjectAsync(new GetObjectRequest
-                {
-                    BucketName = args.BucketName,
-                    Key = args.BlobName,
-                }, args.CancellationToken);
-
-                return response.ResponseStream;
-            }
-            catch (AmazonS3Exception ex)
-            {
-                if (ex.IsNotFoundError())
-                {
-                    return null;
-                }
-                if (ex.IsAccessDeniedError())
-                {
-                    throw new BlobAccessDeniedException(args.BucketName, args.BlobName, ex);
-                }
-                throw;
-            }
-        }
-
-        public async Task<BlobMetadata> GetOrNullMetadataAsync(BlobProviderGetArgs args)
-        {
-            try
-            {
-                var response = await AmazonS3Client
-                    .GetObjectMetadataAsync(
-                        args.BucketName,
-                        args.BlobName,
-                        args.CancellationToken);
-
-                return Mapper.MapBlobMetadata(response);
-            }
-            catch (AmazonS3Exception ex)
-            {
-                if (ex.IsNotFoundError())
-                {
-                    return null;
-                }
-                if (ex.IsAccessDeniedError())
-                {
-                    throw new BlobAccessDeniedException(args.BucketName, args.BlobName, ex);
-                }
-                throw;
-            }
-        }
-
-        public async Task<BlobResponse> GetOrNullWithMetadataAsync(BlobProviderGetArgs args)
+        public async Task<BlobResponse> GetOrNullAsync(BlobProviderGetArgs args)
         {
             try
             {
@@ -184,6 +132,32 @@ namespace BlobStorage.AmazonS3
                 }, args.CancellationToken);
 
                 return Mapper.MapBlobResponse(response);
+            }
+            catch (AmazonS3Exception ex)
+            {
+                if (ex.IsNotFoundError())
+                {
+                    return null;
+                }
+                if (ex.IsAccessDeniedError())
+                {
+                    throw new BlobAccessDeniedException(args.BucketName, args.BlobName, ex);
+                }
+                throw;
+            }
+        }
+
+        public async Task<BlobStat> StatOrNullAsync(BlobProviderGetArgs args)
+        {
+            try
+            {
+                var response = await AmazonS3Client
+                    .GetObjectMetadataAsync(
+                        args.BucketName,
+                        args.BlobName,
+                        args.CancellationToken);
+
+                return Mapper.MapBlobMetadata(response);
             }
             catch (AmazonS3Exception ex)
             {

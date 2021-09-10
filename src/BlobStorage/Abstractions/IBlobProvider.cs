@@ -8,8 +8,7 @@ namespace BlobStorage
         Task SaveAsync(BlobProviderSaveArgs args);
         Task<bool> DeleteAsync(BlobProviderDeleteArgs args);
         Task<bool> ExistsAsync(BlobProviderExistsArgs args);
-        Task<Stream> GetOrNullAsync(BlobProviderGetArgs args);
-        Task<BlobMetadata> GetOrNullMetadataAsync(BlobProviderGetArgs args);
-        Task<BlobResponse> GetOrNullWithMetadataAsync(BlobProviderGetArgs args);
+        Task<BlobResponse> GetOrNullAsync(BlobProviderGetArgs args);
+        Task<BlobStat> StatOrNullAsync(BlobProviderGetArgs args);
     }
 }

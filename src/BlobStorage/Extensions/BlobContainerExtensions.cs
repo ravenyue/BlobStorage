@@ -31,34 +31,6 @@ namespace BlobStorage
             );
         }
 
-        public static async Task<byte[]> GetAllBytesAsync(
-            this IBlobContainer container,
-            string bucketName,
-            string blobName,
-            CancellationToken cancellationToken = default)
-        {
-            using var stream = await container.GetAsync(bucketName, blobName, cancellationToken);
-            return await stream.GetAllBytesAsync(cancellationToken);
-        }
-
-        public static async Task<byte[]> GetAllBytesOrNullAsync(
-            this IBlobContainer container,
-            string bucketName,
-            string blobName,
-            CancellationToken cancellationToken = default)
-        {
-            var stream = await container.GetOrNullAsync(bucketName, blobName, cancellationToken);
-            if (stream == null)
-            {
-                return null;
-            }
-
-            using (stream)
-            {
-                return await stream.GetAllBytesAsync(cancellationToken);
-            }
-        }
-
         public static Task SaveAsync(
             this IBlobContainer container,
             string blobName,
@@ -69,6 +41,45 @@ namespace BlobStorage
         )
         {
             return SaveAsync(container, container.ContainerName, blobName, bytes, overrideExisting, metadata, cancellationToken);
+        }
+
+        public static Task SaveAsync(
+            this IBlobContainer container,
+            string blobName,
+            Stream stream,
+            bool overrideExisting = false,
+            Dictionary<string, string> metadata = null,
+            CancellationToken cancellationToken = default)
+        {
+            return container.SaveAsync(container.ContainerName, blobName, stream, overrideExisting, metadata, cancellationToken);
+        }
+
+        public static async Task<byte[]> GetAllBytesAsync(
+            this IBlobContainer container,
+            string bucketName,
+            string blobName,
+            CancellationToken cancellationToken = default)
+        {
+            var response = await container.GetAsync(bucketName, blobName, cancellationToken);
+            return await response.Content.GetAllBytesAsync(cancellationToken);
+        }
+
+        public static async Task<byte[]> GetAllBytesOrNullAsync(
+            this IBlobContainer container,
+            string bucketName,
+            string blobName,
+            CancellationToken cancellationToken = default)
+        {
+            var response = await container.GetOrNullAsync(bucketName, blobName, cancellationToken);
+            if (response == null)
+            {
+                return null;
+            }
+
+            using (response.Content)
+            {
+                return await response.Content.GetAllBytesAsync(cancellationToken);
+            }
         }
 
         public static Task<byte[]> GetAllBytesAsync(
@@ -87,34 +98,16 @@ namespace BlobStorage
             return GetAllBytesOrNullAsync(container, container.ContainerName, blobName, cancellationToken);
         }
 
-        public static Task SaveAsync(
+        public static Task<BlobResponse> GetAsync(
             this IBlobContainer container,
-            string blobName,
-            Stream stream,
-            bool overrideExisting = false,
-            Dictionary<string, string> metadata = null,
-            CancellationToken cancellationToken = default)
-        {
-            return container.SaveAsync(container.ContainerName, blobName, stream, overrideExisting, metadata, cancellationToken);
-        }
-
-        public static Task<bool> DeleteAsync(
-            this IBlobContainer container,
+            string bucketName,
             string blobName,
             CancellationToken cancellationToken = default)
         {
-            return container.DeleteAsync(container.ContainerName, blobName, cancellationToken);
+            return container.GetAsync(bucketName, blobName, cancellationToken);
         }
 
-        public static Task<bool> ExistsAsync(
-            this IBlobContainer container,
-            string blobName,
-            CancellationToken cancellationToken = default)
-        {
-            return container.ExistsAsync(container.ContainerName, blobName, cancellationToken);
-        }
-
-        public static Task<Stream> GetAsync(
+        public static Task<BlobResponse> GetAsync(
             this IBlobContainer container,
             string blobName,
             CancellationToken cancellationToken = default)
@@ -122,44 +115,12 @@ namespace BlobStorage
             return container.GetAsync(container.ContainerName, blobName, cancellationToken);
         }
 
-        public static Task<Stream> GetOrNullAsync(
+        public static Task<BlobResponse> GetOrNullAsync(
             this IBlobContainer container,
             string blobName,
             CancellationToken cancellationToken = default)
         {
             return container.GetOrNullAsync(container.ContainerName, blobName, cancellationToken);
-        }
-
-        public static Task<BlobResponse> GetWithMetadataAsync(
-            this IBlobContainer container,
-            string blobName,
-            CancellationToken cancellationToken = default)
-        {
-            return container.GetWithMetadataAsync(container.ContainerName, blobName, cancellationToken);
-        }
-
-        public static Task<BlobResponse> GetOrNullWithMetadataAsync(
-            this IBlobContainer container,
-            string blobName,
-            CancellationToken cancellationToken = default)
-        {
-            return container.GetOrNullWithMetadataAsync(container.ContainerName, blobName, cancellationToken);
-        }
-
-        public static Task<BlobMetadata> GetMetadataAsync(
-            this IBlobContainer container,
-            string blobName,
-            CancellationToken cancellationToken = default)
-        {
-            return container.GetMetadataAsync(container.ContainerName, blobName, cancellationToken);
-        }
-
-        public static Task<BlobMetadata> GetOrNullMetadataAsync(
-            this IBlobContainer container,
-            string blobName,
-            CancellationToken cancellationToken = default)
-        {
-            return container.GetOrNullMetadataAsync(container.ContainerName, blobName, cancellationToken);
         }
 
         private static async Task<byte[]> GetAllBytesAsync(this Stream stream, CancellationToken cancellationToken = default)
@@ -171,6 +132,22 @@ namespace BlobStorage
             }
             await stream.CopyToAsync(memoryStream, cancellationToken);
             return memoryStream.ToArray();
+        }
+
+        public static Task<bool> DeleteAsync(
+           this IBlobContainer container,
+           string blobName,
+           CancellationToken cancellationToken = default)
+        {
+            return container.DeleteAsync(container.ContainerName, blobName, cancellationToken);
+        }
+
+        public static Task<bool> ExistsAsync(
+            this IBlobContainer container,
+            string blobName,
+            CancellationToken cancellationToken = default)
+        {
+            return container.ExistsAsync(container.ContainerName, blobName, cancellationToken);
         }
     }
 }

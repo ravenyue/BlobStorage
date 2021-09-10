@@ -63,19 +63,7 @@ namespace BlobStorage
             );
         }
 
-        public Task<Stream> GetAsync(
-            string bucketName,
-            string blobName,
-            CancellationToken cancellationToken = default)
-        {
-            return _container.GetAsync(
-                bucketName,
-                blobName,
-                cancellationToken
-            );
-        }
-
-        public Task<Stream> GetOrNullAsync(
+        public Task<BlobResponse> GetOrNullAsync(
             string bucketName,
             string blobName,
             CancellationToken cancellationToken = default)
@@ -87,48 +75,12 @@ namespace BlobStorage
             );
         }
 
-        public Task<BlobMetadata> GetMetadataAsync(
+        public Task<BlobStat> StatOrNullAsync(
             string bucketName,
             string blobName,
             CancellationToken cancellationToken = default)
         {
-            return _container.GetMetadataAsync(
-                bucketName,
-                blobName,
-                cancellationToken
-            );
-        }
-
-        public Task<BlobMetadata> GetOrNullMetadataAsync(
-            string bucketName,
-            string blobName,
-            CancellationToken cancellationToken = default)
-        {
-            return _container.GetOrNullMetadataAsync(
-                bucketName,
-                blobName,
-                cancellationToken
-            );
-        }
-
-        public Task<BlobResponse> GetWithMetadataAsync(
-            string bucketName,
-            string blobName,
-            CancellationToken cancellationToken = default)
-        {
-            return _container.GetWithMetadataAsync(
-                bucketName,
-                blobName,
-                cancellationToken
-            );
-        }
-
-        public Task<BlobResponse> GetOrNullWithMetadataAsync(
-            string bucketName,
-            string blobName,
-            CancellationToken cancellationToken = default)
-        {
-            return _container.GetOrNullWithMetadataAsync(
+            return _container.StatOrNullAsync(
                 bucketName,
                 blobName,
                 cancellationToken
@@ -228,28 +180,7 @@ namespace BlobStorage
             );
         }
 
-        public virtual async Task<Stream> GetAsync(
-            string bucketName,
-            string blobName,
-            CancellationToken cancellationToken = default)
-        {
-            Check.NotNullOrWhiteSpace(bucketName, nameof(bucketName));
-            Check.NotNullOrWhiteSpace(blobName, nameof(blobName));
-
-            BlobNamingValidator.EnsureValidNameing(
-                bucketName, blobName,
-                Configuration.ProviderType.FullName);
-
-            var stream = await GetOrNullAsync(bucketName, blobName, cancellationToken);
-            if (stream == null)
-            {
-                throw new BlobNotFoundException(bucketName, blobName);
-            }
-
-            return stream;
-        }
-
-        public virtual Task<Stream> GetOrNullAsync(
+        public virtual Task<BlobResponse> GetOrNullAsync(
             string bucketName,
             string blobName,
             CancellationToken cancellationToken = default)
@@ -269,8 +200,8 @@ namespace BlobStorage
                 )
             );
         }
-
-        public async Task<BlobMetadata> GetMetadataAsync(string bucketName, string blobName, CancellationToken cancellationToken = default)
+ 
+        public Task<BlobStat> StatOrNullAsync(string bucketName, string blobName, CancellationToken cancellationToken = default)
         {
             Check.NotNullOrWhiteSpace(bucketName, nameof(bucketName));
             Check.NotNullOrWhiteSpace(blobName, nameof(blobName));
@@ -279,75 +210,7 @@ namespace BlobStorage
                 bucketName, blobName,
                 Configuration.ProviderType.FullName);
 
-            var metadata = await Provider.GetOrNullMetadataAsync(
-                new BlobProviderGetArgs(
-                    bucketName,
-                    blobName,
-                    cancellationToken
-                )
-            );
-
-            if (metadata == null)
-            {
-                throw new BlobNotFoundException(bucketName, blobName);
-            }
-
-            return metadata;
-        }
-
-        public Task<BlobMetadata> GetOrNullMetadataAsync(string bucketName, string blobName, CancellationToken cancellationToken = default)
-        {
-            Check.NotNullOrWhiteSpace(bucketName, nameof(bucketName));
-            Check.NotNullOrWhiteSpace(blobName, nameof(blobName));
-
-            BlobNamingValidator.EnsureValidNameing(
-                bucketName, blobName,
-                Configuration.ProviderType.FullName);
-
-            return Provider.GetOrNullMetadataAsync(
-                new BlobProviderGetArgs(
-                    bucketName,
-                    blobName,
-                    cancellationToken
-                )
-            );
-        }
-
-        public async Task<BlobResponse> GetWithMetadataAsync(string bucketName, string blobName, CancellationToken cancellationToken = default)
-        {
-            Check.NotNullOrWhiteSpace(bucketName, nameof(bucketName));
-            Check.NotNullOrWhiteSpace(blobName, nameof(blobName));
-
-            BlobNamingValidator.EnsureValidNameing(
-                bucketName, blobName,
-                Configuration.ProviderType.FullName);
-
-            var response = await Provider.GetOrNullWithMetadataAsync(
-                new BlobProviderGetArgs(
-                    bucketName,
-                    blobName,
-                    cancellationToken
-                )
-            );
-
-            if (response == null)
-            {
-                throw new BlobNotFoundException(bucketName, blobName);
-            }
-
-            return response;
-        }
-
-        public Task<BlobResponse> GetOrNullWithMetadataAsync(string bucketName, string blobName, CancellationToken cancellationToken = default)
-        {
-            Check.NotNullOrWhiteSpace(bucketName, nameof(bucketName));
-            Check.NotNullOrWhiteSpace(blobName, nameof(blobName));
-
-            BlobNamingValidator.EnsureValidNameing(
-                bucketName, blobName,
-                Configuration.ProviderType.FullName);
-
-            return Provider.GetOrNullWithMetadataAsync(
+            return Provider.StatOrNullAsync(
                 new BlobProviderGetArgs(
                     bucketName,
                     blobName,

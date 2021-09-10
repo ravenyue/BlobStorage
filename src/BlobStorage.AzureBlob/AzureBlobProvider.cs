@@ -82,53 +82,7 @@ namespace BlobStorage.AzureBlob
             return BlobExistsAsync(blobClient, args.CancellationToken);
         }
 
-        public async Task<Stream> GetOrNullAsync(BlobProviderGetArgs args)
-        {
-            var (_, blobClient) = GetBlobClient(args.BucketName, args.BlobName);
-
-            try
-            {
-                var response = await blobClient.DownloadAsync(args.CancellationToken);
-                return response.Value.Content;
-            }
-            catch (RequestFailedException ex)
-            {
-                if (ex.IsNotFoundError())
-                {
-                    return null;
-                }
-                if (ex.IsAccessDeniedError())
-                {
-                    throw new BlobAccessDeniedException(args.BucketName, args.BlobName, ex);
-                }
-                throw;
-            }
-        }
-
-        public async Task<BlobMetadata> GetOrNullMetadataAsync(BlobProviderGetArgs args)
-        {
-            var (_, blobClient) = GetBlobClient(args.BucketName, args.BlobName);
-
-            try
-            {
-                var response = await blobClient.GetPropertiesAsync(cancellationToken: args.CancellationToken);
-                return Mapper.MapBlobMetadata(response.Value);
-            }
-            catch (RequestFailedException ex)
-            {
-                if (ex.IsNotFoundError())
-                {
-                    return null;
-                }
-                if (ex.IsAccessDeniedError())
-                {
-                    throw new BlobAccessDeniedException(args.BucketName, args.BlobName, ex);
-                }
-                throw;
-            }
-        }
-
-        public async Task<BlobResponse> GetOrNullWithMetadataAsync(BlobProviderGetArgs args)
+        public async Task<BlobResponse> GetOrNullAsync(BlobProviderGetArgs args)
         {
             var (_, blobClient) = GetBlobClient(args.BucketName, args.BlobName);
 
@@ -136,6 +90,29 @@ namespace BlobStorage.AzureBlob
             {
                 var response = await blobClient.DownloadAsync(args.CancellationToken);
                 return Mapper.MapBlobResponse(response.Value);
+            }
+            catch (RequestFailedException ex)
+            {
+                if (ex.IsNotFoundError())
+                {
+                    return null;
+                }
+                if (ex.IsAccessDeniedError())
+                {
+                    throw new BlobAccessDeniedException(args.BucketName, args.BlobName, ex);
+                }
+                throw;
+            }
+        }
+
+        public async Task<BlobStat> StatOrNullAsync(BlobProviderGetArgs args)
+        {
+            var (_, blobClient) = GetBlobClient(args.BucketName, args.BlobName);
+
+            try
+            {
+                var response = await blobClient.GetPropertiesAsync(cancellationToken: args.CancellationToken);
+                return Mapper.MapBlobMetadata(response.Value);
             }
             catch (RequestFailedException ex)
             {
