@@ -125,7 +125,7 @@ namespace BlobStorage.AliyunOss
             }
         }
 
-        public Task<BlobStat> StatOrNullAsync(BlobProviderGetArgs args)
+        public virtual Task<BlobStat> StatOrNullAsync(BlobProviderGetArgs args)
         {
             try
             {

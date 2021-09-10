@@ -29,7 +29,7 @@ namespace BlobStorage.AmazonS3
             return new AmazonS3Client(options.AccessKeyId, options.SecretAccessKey, region);
         }
 
-        public async Task SaveAsync(BlobProviderSaveArgs args)
+        public virtual async Task SaveAsync(BlobProviderSaveArgs args)
         {
             var exists = await BlobExistsAsync(
                 AmazonS3Client,
@@ -82,7 +82,7 @@ namespace BlobStorage.AmazonS3
             }
         }
 
-        public async Task<bool> DeleteAsync(BlobProviderDeleteArgs args)
+        public virtual async Task<bool> DeleteAsync(BlobProviderDeleteArgs args)
         {
             if (!await BlobExistsAsync(
                 AmazonS3Client,
@@ -116,12 +116,12 @@ namespace BlobStorage.AmazonS3
             return true;
         }
 
-        public Task<bool> ExistsAsync(BlobProviderExistsArgs args)
+        public virtual Task<bool> ExistsAsync(BlobProviderExistsArgs args)
         {
             return BlobExistsAsync(AmazonS3Client, args.BucketName, args.BlobName, args.CancellationToken);
         }
 
-        public async Task<BlobResponse> GetOrNullAsync(BlobProviderGetArgs args)
+        public virtual async Task<BlobResponse> GetOrNullAsync(BlobProviderGetArgs args)
         {
             try
             {
@@ -147,7 +147,7 @@ namespace BlobStorage.AmazonS3
             }
         }
 
-        public async Task<BlobStat> StatOrNullAsync(BlobProviderGetArgs args)
+        public virtual async Task<BlobStat> StatOrNullAsync(BlobProviderGetArgs args)
         {
             try
             {
@@ -173,7 +173,7 @@ namespace BlobStorage.AmazonS3
             }
         }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             AmazonS3Client?.Dispose();
         }

@@ -54,7 +54,7 @@ namespace BlobStorage.AzureBlob
             }
         }
 
-        public async Task<bool> DeleteAsync(BlobProviderDeleteArgs args)
+        public virtual async Task<bool> DeleteAsync(BlobProviderDeleteArgs args)
         {
             var (_, blobClient) = GetBlobClient(args.BucketName, args.BlobName);
             try
@@ -75,14 +75,14 @@ namespace BlobStorage.AzureBlob
             }
         }
 
-        public Task<bool> ExistsAsync(BlobProviderExistsArgs args)
+        public virtual Task<bool> ExistsAsync(BlobProviderExistsArgs args)
         {
             var (_, blobClient) = GetBlobClient(args.BucketName, args.BlobName);
 
             return BlobExistsAsync(blobClient, args.CancellationToken);
         }
 
-        public async Task<BlobResponse> GetOrNullAsync(BlobProviderGetArgs args)
+        public virtual async Task<BlobResponse> GetOrNullAsync(BlobProviderGetArgs args)
         {
             var (_, blobClient) = GetBlobClient(args.BucketName, args.BlobName);
 
@@ -105,7 +105,7 @@ namespace BlobStorage.AzureBlob
             }
         }
 
-        public async Task<BlobStat> StatOrNullAsync(BlobProviderGetArgs args)
+        public virtual async Task<BlobStat> StatOrNullAsync(BlobProviderGetArgs args)
         {
             var (_, blobClient) = GetBlobClient(args.BucketName, args.BlobName);
 

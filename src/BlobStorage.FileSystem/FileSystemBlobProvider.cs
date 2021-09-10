@@ -19,7 +19,7 @@ namespace BlobStorage.FileSystem
             Options = options.Value;
         }
 
-        public async Task SaveAsync(BlobProviderSaveArgs args)
+        public virtual async Task SaveAsync(BlobProviderSaveArgs args)
         {
             var filePath = FilePathCalculator.Calculate(args, Options);
 
@@ -42,19 +42,19 @@ namespace BlobStorage.FileSystem
             await fileStream.FlushAsync();
         }
 
-        public Task<bool> DeleteAsync(BlobProviderDeleteArgs args)
+        public virtual Task<bool> DeleteAsync(BlobProviderDeleteArgs args)
         {
             var filePath = FilePathCalculator.Calculate(args, Options);
             return Task.FromResult(FileHelper.DeleteIfExists(filePath));
         }
 
-        public Task<bool> ExistsAsync(BlobProviderExistsArgs args)
+        public virtual Task<bool> ExistsAsync(BlobProviderExistsArgs args)
         {
             var filePath = FilePathCalculator.Calculate(args, Options);
             return Task.FromResult(File.Exists(filePath));
         }
 
-        public async Task<BlobResponse> GetOrNullAsync(BlobProviderGetArgs args)
+        public virtual async Task<BlobResponse> GetOrNullAsync(BlobProviderGetArgs args)
         {
             var filePath = FilePathCalculator.Calculate(args, Options);
 
@@ -67,7 +67,7 @@ namespace BlobStorage.FileSystem
             return new BlobResponse(stream, metadata);
         }
 
-        public Task<BlobStat> StatOrNullAsync(BlobProviderGetArgs args)
+        public virtual Task<BlobStat> StatOrNullAsync(BlobProviderGetArgs args)
         {
             var filePath = FilePathCalculator.Calculate(args, Options);
             var fileInfo = new FileInfo(filePath);
