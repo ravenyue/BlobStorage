@@ -35,7 +35,7 @@ namespace BlobStorage.AmazonS3
                 AmazonS3Client,
                 args.BucketName,
                 args.BlobName,
-                args.CancellationToken);
+                args.CancellationToken).ConfigureAwait(false);
 
             if (!args.OverrideExisting && exists)
             {
@@ -47,7 +47,8 @@ namespace BlobStorage.AmazonS3
 
             if (Options.CreateBucketIfNotExists)
             {
-                await CreateBucketIfNotExists(AmazonS3Client, args.BucketName);
+                await CreateBucketIfNotExists(AmazonS3Client, args.BucketName)
+                    .ConfigureAwait(false);
             }
 
             try
@@ -66,7 +67,9 @@ namespace BlobStorage.AmazonS3
                         request.Metadata.Add(data.Key, data.Value);
                     }
                 }
-                await AmazonS3Client.PutObjectAsync(request, args.CancellationToken);
+                await AmazonS3Client
+                    .PutObjectAsync(request, args.CancellationToken)
+                    .ConfigureAwait(false);
             }
             catch (AmazonS3Exception ex)
             {
@@ -84,11 +87,13 @@ namespace BlobStorage.AmazonS3
 
         public virtual async Task<bool> DeleteAsync(BlobProviderDeleteArgs args)
         {
-            if (!await BlobExistsAsync(
+            var exists = await BlobExistsAsync(
                 AmazonS3Client,
                 args.BucketName,
                 args.BlobName,
-                args.CancellationToken))
+                args.CancellationToken).ConfigureAwait(false);
+
+            if (!exists)
             {
                 return false;
             }
@@ -99,7 +104,7 @@ namespace BlobStorage.AmazonS3
                 {
                     BucketName = args.BucketName,
                     Key = args.BlobName,
-                }, args.CancellationToken);
+                }, args.CancellationToken).ConfigureAwait(false);
             }
             catch (AmazonS3Exception ex)
             {
@@ -129,7 +134,7 @@ namespace BlobStorage.AmazonS3
                 {
                     BucketName = args.BucketName,
                     Key = args.BlobName,
-                }, args.CancellationToken);
+                }, args.CancellationToken).ConfigureAwait(false);
 
                 return Mapper.MapBlobResponse(response);
             }
@@ -155,7 +160,8 @@ namespace BlobStorage.AmazonS3
                     .GetObjectMetadataAsync(
                         args.BucketName,
                         args.BlobName,
-                        args.CancellationToken);
+                        args.CancellationToken)
+                    .ConfigureAwait(false);
 
                 return Mapper.MapBlobMetadata(response);
             }
@@ -186,7 +192,9 @@ namespace BlobStorage.AmazonS3
         {
             try
             {
-                await amazonS3Client.GetObjectMetadataAsync(bucketName, blobName, cancellationToken);
+                await amazonS3Client
+                    .GetObjectMetadataAsync(bucketName, blobName, cancellationToken)
+                    .ConfigureAwait(false);
             }
             catch (AmazonS3Exception ex)
             {
@@ -207,12 +215,14 @@ namespace BlobStorage.AmazonS3
         {
             try
             {
-                if (!await AmazonS3Util.DoesS3BucketExistV2Async(amazonS3Client, bucketName))
+                if (!await AmazonS3Util
+                    .DoesS3BucketExistV2Async(amazonS3Client, bucketName)
+                    .ConfigureAwait(false))
                 {
                     await amazonS3Client.PutBucketAsync(new PutBucketRequest
                     {
                         BucketName = bucketName
-                    });
+                    }).ConfigureAwait(false);
                 }
             }
             catch (AmazonS3Exception ex)

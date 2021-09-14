@@ -38,8 +38,8 @@ namespace BlobStorage.FileSystem
                 : FileMode.CreateNew;
 
             using var fileStream = File.Open(filePath, fileMode, FileAccess.Write);
-            await args.BlobStream.CopyToAsync(fileStream, args.CancellationToken);
-            await fileStream.FlushAsync();
+            await args.BlobStream.CopyToAsync(fileStream, args.CancellationToken).ConfigureAwait(false);
+            await fileStream.FlushAsync().ConfigureAwait(false);
         }
 
         public virtual Task<bool> DeleteAsync(BlobProviderDeleteArgs args)
@@ -58,7 +58,7 @@ namespace BlobStorage.FileSystem
         {
             var filePath = FilePathCalculator.Calculate(args, Options);
 
-            var metadata = await StatOrNullAsync(args);
+            var metadata = await StatOrNullAsync(args).ConfigureAwait(false);
             if (metadata == null)
                 return null;
 

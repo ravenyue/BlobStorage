@@ -20,8 +20,10 @@ namespace BlobStorage.AzureBlob
         {
             var (containerClient, blobClient) = GetBlobClient(args.BucketName, args.BlobName);
 
-            if (!args.OverrideExisting &&
-                await BlobExistsAsync(blobClient, args.CancellationToken))
+            var exists = await BlobExistsAsync(blobClient, args.CancellationToken)
+                .ConfigureAwait(false);
+
+            if (!args.OverrideExisting && exists)
             {
                 throw new BlobAlreadyExistsException(
                     $"Saving BLOB '{args.BlobName}' does already exists in the container '{args.BucketName}'! Set {nameof(args.OverrideExisting)} if it should be overwritten.",
@@ -34,11 +36,11 @@ namespace BlobStorage.AzureBlob
                 if (Options.CreateBucketIfNotExists)
                 {
                     await containerClient.CreateIfNotExistsAsync(
-                        cancellationToken: args.CancellationToken);
+                        cancellationToken: args.CancellationToken).ConfigureAwait(false);
                 }
                 await blobClient.UploadAsync(args.BlobStream,
                     metadata: args.Metadata,
-                    cancellationToken: args.CancellationToken);
+                    cancellationToken: args.CancellationToken).ConfigureAwait(false);
             }
             catch (RequestFailedException ex)
             {
@@ -59,7 +61,9 @@ namespace BlobStorage.AzureBlob
             var (_, blobClient) = GetBlobClient(args.BucketName, args.BlobName);
             try
             {
-                return await blobClient.DeleteIfExistsAsync(cancellationToken: args.CancellationToken);
+                return await blobClient
+                    .DeleteIfExistsAsync(cancellationToken: args.CancellationToken)
+                    .ConfigureAwait(false);
             }
             catch (RequestFailedException ex)
             {
@@ -88,7 +92,10 @@ namespace BlobStorage.AzureBlob
 
             try
             {
-                var response = await blobClient.DownloadAsync(args.CancellationToken);
+                var response = await blobClient
+                    .DownloadAsync(args.CancellationToken)
+                    .ConfigureAwait(false);
+
                 return Mapper.MapBlobResponse(response.Value);
             }
             catch (RequestFailedException ex)
@@ -111,7 +118,10 @@ namespace BlobStorage.AzureBlob
 
             try
             {
-                var response = await blobClient.GetPropertiesAsync(cancellationToken: args.CancellationToken);
+                var response = await blobClient
+                    .GetPropertiesAsync(cancellationToken: args.CancellationToken)
+                    .ConfigureAwait(false);
+
                 return Mapper.MapBlobMetadata(response.Value);
             }
             catch (RequestFailedException ex)
@@ -134,7 +144,7 @@ namespace BlobStorage.AzureBlob
         {
             try
             {
-                return (await blobClient.ExistsAsync(cancellationToken)).Value;
+                return (await blobClient.ExistsAsync(cancellationToken).ConfigureAwait(false)).Value;
             }
             catch (RequestFailedException ex)
             {

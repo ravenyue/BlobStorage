@@ -40,7 +40,7 @@ namespace BlobStorage.Minio
                 MinioClient,
                 args.BucketName,
                 args.BlobName,
-                args.CancellationToken);
+                args.CancellationToken).ConfigureAwait(false);
 
             if (!args.OverrideExisting && exists)
             {
@@ -52,7 +52,7 @@ namespace BlobStorage.Minio
 
             if (Options.CreateBucketIfNotExists)
             {
-                await CreateBucketIfNotExists(MinioClient, args.BucketName);
+                await CreateBucketIfNotExists(MinioClient, args.BucketName).ConfigureAwait(false);
             }
 
             try
@@ -63,7 +63,7 @@ namespace BlobStorage.Minio
                     args.BlobStream,
                     args.BlobStream.Length,
                     metaData: args.Metadata,
-                    cancellationToken: args.CancellationToken);
+                    cancellationToken: args.CancellationToken).ConfigureAwait(false);
             }
             catch (MinioException ex)
             {
@@ -85,7 +85,7 @@ namespace BlobStorage.Minio
                 MinioClient,
                 args.BucketName,
                 args.BlobName,
-                args.CancellationToken);
+                args.CancellationToken).ConfigureAwait(false);
 
             if (!exists) return false;
 
@@ -94,7 +94,7 @@ namespace BlobStorage.Minio
                 await MinioClient.RemoveObjectAsync(
                     args.BucketName,
                     args.BlobName,
-                    args.CancellationToken);
+                    args.CancellationToken).ConfigureAwait(false);
             }
             catch (MinioException ex)
             {
@@ -122,13 +122,13 @@ namespace BlobStorage.Minio
 
         public virtual async Task<BlobResponse> GetOrNullAsync(BlobProviderGetArgs args)
         {
-            var metadata = await StatOrNullAsync(args);
+            var metadata = await StatOrNullAsync(args).ConfigureAwait(false);
             if (metadata == null)
             {
                 return null;
             }
 
-            var stream = await GetBlobOrNullAsync(args);
+            var stream = await GetBlobOrNullAsync(args).ConfigureAwait(false);
             if (stream == null)
             {
                 return null;
@@ -141,10 +141,12 @@ namespace BlobStorage.Minio
         {
             try
             {
-                var objectStat = await MinioClient.StatObjectAsync(
-                    args.BucketName,
-                    args.BlobName,
-                    cancellationToken: args.CancellationToken);
+                var objectStat = await MinioClient
+                    .StatObjectAsync(
+                        args.BucketName,
+                        args.BlobName,
+                        cancellationToken: args.CancellationToken)
+                    .ConfigureAwait(false);
 
                 return Mapper.MapBlobMetadata(objectStat);
             }
@@ -178,7 +180,9 @@ namespace BlobStorage.Minio
                     {
                         memoryStream = null;
                     }
-                }, cancellationToken: args.CancellationToken);
+                }, cancellationToken: args.CancellationToken)
+                .ConfigureAwait(false);
+
                 return memoryStream;
             }
             catch (MinioException ex)
@@ -199,7 +203,7 @@ namespace BlobStorage.Minio
         {
             try
             {
-                await client.StatObjectAsync(bucketName, blobName, cancellationToken: cancellationToken);
+                await client.StatObjectAsync(bucketName, blobName, cancellationToken: cancellationToken).ConfigureAwait(false);
             }
             catch (MinioException ex)
             {
@@ -220,9 +224,9 @@ namespace BlobStorage.Minio
         {
             try
             {
-                if (!await client.BucketExistsAsync(bucketName))
+                if (!await client.BucketExistsAsync(bucketName).ConfigureAwait(false))
                 {
-                    await client.MakeBucketAsync(bucketName);
+                    await client.MakeBucketAsync(bucketName).ConfigureAwait(false);
                 }
             }
             catch (MinioException ex)

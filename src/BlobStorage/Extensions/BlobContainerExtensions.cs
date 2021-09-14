@@ -28,7 +28,7 @@ namespace BlobStorage
                 overrideExisting,
                 metadata,
                 cancellationToken
-            );
+            ).ConfigureAwait(false);
         }
 
         public static Task SaveAsync(
@@ -60,8 +60,8 @@ namespace BlobStorage
             string blobName,
             CancellationToken cancellationToken = default)
         {
-            var response = await container.GetAsync(bucketName, blobName, cancellationToken);
-            return await response.Content.GetAllBytesAsync(cancellationToken);
+            var response = await container.GetAsync(bucketName, blobName, cancellationToken).ConfigureAwait(false);
+            return await response.Content.GetAllBytesAsync(cancellationToken).ConfigureAwait(false);
         }
 
         public static async Task<byte[]> GetAllBytesOrNullAsync(
@@ -70,7 +70,7 @@ namespace BlobStorage
             string blobName,
             CancellationToken cancellationToken = default)
         {
-            var response = await container.GetOrNullAsync(bucketName, blobName, cancellationToken);
+            var response = await container.GetOrNullAsync(bucketName, blobName, cancellationToken).ConfigureAwait(false);
             if (response == null)
             {
                 return null;
@@ -78,7 +78,7 @@ namespace BlobStorage
 
             using (response.Content)
             {
-                return await response.Content.GetAllBytesAsync(cancellationToken);
+                return await response.Content.GetAllBytesAsync(cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -130,7 +130,7 @@ namespace BlobStorage
             {
                 stream.Position = 0;
             }
-            await stream.CopyToAsync(memoryStream, cancellationToken);
+            await stream.CopyToAsync(memoryStream, cancellationToken).ConfigureAwait(false);
             return memoryStream.ToArray();
         }
 
