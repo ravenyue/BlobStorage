@@ -14,7 +14,7 @@ if ([string]::IsNullOrEmpty($key)) {
     Get-ChildItem $packages | ForEach-Object {
         Write-Host "$($scriptName): Pushing $($_.Name)"
         $file = "$($packages)\$($_.Name)"
-        dotnet nuget push $file --source $url $key
+        dotnet nuget push $file --source $url --api-key $key
         if ($lastexitcode -ne 0) {
             throw ("Exec: " + $errorMessage)
         }
