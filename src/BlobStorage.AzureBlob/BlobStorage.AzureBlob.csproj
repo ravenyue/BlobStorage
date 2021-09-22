@@ -1,15 +1,19 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
+    <PackageId>BlobStorage.AzureBlob</PackageId>
+    <Description>Standard BLOB Storage library, azure blob provider</Description>
+    <PackageTags>object;blob;storage;azure</PackageTags>
   </PropertyGroup>
-
+  
   <ItemGroup>
     <PackageReference Include="Azure.Storage.Blobs" Version="12.9.1" />
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="5.0.0" />
   </ItemGroup>
-
+  
   <ItemGroup>
     <ProjectReference Include="..\BlobStorage\BlobStorage.csproj" />
   </ItemGroup>

@@ -2,11 +2,15 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
+    <PackageId>BlobStorage.AliyunOss</PackageId>
+    <Description>Standard BLOB Storage library, aliyun oss provider</Description>
+    <PackageTags>object;blob;storage;aliyun;oss</PackageTags>
   </PropertyGroup>
-
+  
   <ItemGroup>
     <PackageReference Include="Aliyun.OSS.SDK.NetCore" Version="2.13.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="5.0.0" />
   </ItemGroup>
 

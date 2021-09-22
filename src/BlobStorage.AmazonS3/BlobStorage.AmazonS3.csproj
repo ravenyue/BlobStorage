@@ -1,12 +1,16 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
+    <PackageId>BlobStorage.AmazonS3</PackageId>
+    <Description>Standard BLOB Storage library, amazon s3 provider</Description>
+    <PackageTags>object;blob;storage;amazon;aws;s3</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="AWSSDK.S3" Version="3.7.1.25" />
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="5.0.0" />
   </ItemGroup>
 
