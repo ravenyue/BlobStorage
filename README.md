@@ -21,15 +21,15 @@ Multiple providers **can be used together** by the help of the **container syste
 ## Install
 To install `BlobStorage` package, run the following command in Nuget Package Manager Console.
 ```
-PM> Install-Package BlobStorage
+PM> Install-Package RavenYu.BlobStorage
 ```
 Choose to install provider you needed
 ```
-PM> Install-Package BlobStorage.AliyunOss
-PM> Install-Package BlobStorage.AmazonS3
-PM> Install-Package BlobStorage.AzureBlob
-PM> Install-Package BlobStorage.Minio
-PM> Install-Package BlobStorage.FileSystem
+PM> Install-Package RavenYu.BlobStorage.AliyunOss
+PM> Install-Package RavenYu.BlobStorage.AmazonS3
+PM> Install-Package RavenYu.BlobStorage.AzureBlob
+PM> Install-Package RavenYu.BlobStorage.Minio
+PM> Install-Package RavenYu.BlobStorage.FileSystem
 ```
 
 ## Getting Started
