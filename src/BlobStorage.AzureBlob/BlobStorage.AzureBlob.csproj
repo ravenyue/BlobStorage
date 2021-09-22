@@ -4,7 +4,7 @@
     <TargetFramework>net5.0</TargetFramework>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);1591</NoWarn>
-    <PackageId>BlobStorage.AzureBlob</PackageId>
+    <PackageId>RavenYu.BlobStorage.AzureBlob</PackageId>
     <Description>Standard BLOB Storage library, azure blob provider</Description>
     <PackageTags>object;blob;storage;azure</PackageTags>
   </PropertyGroup>

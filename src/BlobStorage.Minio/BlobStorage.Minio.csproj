@@ -4,7 +4,7 @@
     <TargetFramework>net5.0</TargetFramework>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);1591</NoWarn>
-    <PackageId>BlobStorage.Minio</PackageId>
+    <PackageId>RavenYu.BlobStorage.Minio</PackageId>
     <Description>Standard BLOB Storage library, minio provider</Description>
     <PackageTags>object;blob;storage;minio</PackageTags>
   </PropertyGroup>

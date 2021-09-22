@@ -4,7 +4,7 @@
     <TargetFramework>net5.0</TargetFramework>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);1591</NoWarn>
-    <PackageId>BlobStorage.AmazonS3</PackageId>
+    <PackageId>RavenYu.BlobStorage.AmazonS3</PackageId>
     <Description>Standard BLOB Storage library, amazon s3 provider</Description>
     <PackageTags>object;blob;storage;amazon;aws;s3</PackageTags>
   </PropertyGroup>
