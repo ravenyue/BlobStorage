@@ -98,13 +98,19 @@ namespace BlobStorage
             return GetAllBytesOrNullAsync(container, container.ContainerName, blobName, cancellationToken);
         }
 
-        public static Task<BlobResponse> GetAsync(
+        public static async Task<BlobResponse> GetAsync(
             this IBlobContainer container,
             string bucketName,
             string blobName,
             CancellationToken cancellationToken = default)
         {
-            return container.GetAsync(bucketName, blobName, cancellationToken);
+            var response = await container.GetOrNullAsync(bucketName, blobName, cancellationToken);
+
+            if (response == null)
+            {
+                throw new BlobNotFoundException(bucketName, blobName);
+            }
+            return response;
         }
 
         public static Task<BlobResponse> GetAsync(
