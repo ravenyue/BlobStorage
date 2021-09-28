@@ -155,5 +155,36 @@ namespace BlobStorage
         {
             return container.ExistsAsync(container.ContainerName, blobName, cancellationToken);
         }
+
+        public static Task<BlobStat> StatOrNullAsync(
+            this IBlobContainer container,
+            string blobName,
+            CancellationToken cancellationToken = default)
+        {
+            return container.StatOrNullAsync(container.ContainerName, blobName, cancellationToken);
+        }
+
+        public static Task<BlobStat> StatAsync(
+           this IBlobContainer container,
+           string blobName,
+           CancellationToken cancellationToken = default)
+        {
+            return container.StatAsync(container.ContainerName, blobName, cancellationToken);
+        }
+
+        public static async Task<BlobStat> StatAsync(
+            this IBlobContainer container,
+            string bucketName,
+            string blobName,
+            CancellationToken cancellationToken = default)
+        {
+            var blobStat = await container.StatOrNullAsync(bucketName, blobName, cancellationToken);
+
+            if (blobStat == null)
+            {
+                throw new BlobNotFoundException(bucketName, blobName);
+            }
+            return blobStat;
+        }
     }
 }
