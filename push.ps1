@@ -11,7 +11,7 @@ $packages = ".\.packages"
 if ([string]::IsNullOrEmpty($key)) {
     Write-Host "${scriptName}: key is empty or not set. Skipped pushing package(s)."
 } else {
-    Get-ChildItem $packages | ForEach-Object {
+    Get-ChildItem $packages -Filter "*.nupkg" | ForEach-Object {
         Write-Host "$($scriptName): Pushing $($_.Name)"
         $file = "$($packages)\$($_.Name)"
         dotnet nuget push $file --source $url --api-key $key
